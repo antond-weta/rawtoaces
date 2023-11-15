@@ -25,8 +25,8 @@ target_link_libraries(
     Test_IDT
     PUBLIC
         ${RAWTOACESLIB}
-        Imath::Imath
-        Imath::ImathConfig
+#        Imath::Imath
+#        Imath::ImathConfig
         Boost::boost
         Boost::filesystem
         Boost::unit_test_framework

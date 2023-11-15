@@ -55,12 +55,18 @@
 #include <rawtoaces/acesrender.h>
 #include <rawtoaces/mathOps.h>
 
-#include <Imath/half.h>
+//#include <Imath/half.h>
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/json_parser.hpp>
 #include <boost/foreach.hpp>
 
-#include <aces/aces_Writer.h>
+#ifdef USE_OPENEXR
+#    include <OpenEXR/ImfAcesFile.h>
+#    include <OpenEXR/ImfArray.h>
+#    include <OpenEXR/ImfStandardAttributes.h>
+#else
+#    include <aces/aces_Writer.h>
+#endif
 
 #ifndef WIN32
 #    include <fcntl.h>
@@ -1865,8 +1871,8 @@ void AcesRender::acesWrite( const char *name, float *aces, float ratio ) const
     uint8_t  channels = _image->colors;
     uint8_t  bits     = _image->bits;
 
-    halfBytes *halfIn = new ( std::nothrow )
-        halfBytes[channels * width * height];
+    //    halfBytes *halfIn = new ( std::nothrow )
+    //        halfBytes[channels * width * height];
 
     FORI( channels * width * height )
     {
@@ -1875,9 +1881,105 @@ void AcesRender::acesWrite( const char *name, float *aces, float ratio ) const
         else if ( bits == 16 )
             aces[i] = (double)aces[i] * INV_65535 * ( _opts.scale ) * ratio;
 
-        Imath::half tmpV( aces[i] );
-        halfIn[i] = tmpV.bits();
+        //        Imath::half tmpV( aces[i] );
+        //        halfIn[i] = tmpV.bits();
     }
+
+#ifdef USE_OPENEXR
+
+    Imath::Box2i window;
+    window.min = Imath::V2i( 0, 0 );
+    window.max = Imath::V2i( width - 1, height - 1 );
+
+    Imf::RgbaChannels fileChannels = channels == 4 ? Imf::WRITE_RGBA
+                                                   : Imf::WRITE_RGB;
+
+    Imf::Header header(
+        width,
+        height,
+        1,                  // pixel aspect ratio
+        Imath::V2f( 0, 0 ), // screen window center
+        1,                  // screen window width
+        Imf::INCREASING_Y,  // line order
+        Imf::NO_COMPRESSION // compression
+    );
+
+    libraw_iparams_t  *iparams = &_rawProcessor->imgdata.idata;
+    libraw_lensinfo_t *lens    = &_rawProcessor->imgdata.lens;
+    libraw_imgother_t *other   = &_rawProcessor->imgdata.other;
+
+#    if 0
+    Imf::addCameraMake( header, iparams->make );
+    Imf::addCameraModel( header, iparams->model );
+    Imf::addCameraLabel(
+        header, string( iparams->make ) + " " + iparams->model );
+
+    Imf::addLensMake( header, lens->LensMake );
+    Imf::addLensModel( header, lens->Lens );
+    Imf::addLensSerialNumber( header, lens->LensSerial );
+
+    Imf::addIsoSpeed( header, other->iso_speed );
+    Imf::addExpTime( header, other->shutter );
+    Imf::addAperture( header, other->aperture );
+    Imf::addEffectiveFocalLength( header, other->focal_len );
+    Imf::addComments( header, other->desc );
+    Imf::addOwner( header, other->artist );
+#    else
+    header.insert( "cameraMake", Imf::StringAttribute( iparams->make ) );
+    header.insert( "cameraModel", Imf::StringAttribute( iparams->model ) );
+    header.insert(
+        "cameraLabel",
+        Imf::StringAttribute(
+            string( iparams->make ) + " " + iparams->model ) );
+
+    header.insert( "lensMake", Imf::StringAttribute( lens->LensMake ) );
+    header.insert( "lensModel", Imf::StringAttribute( lens->Lens ) );
+    header.insert(
+        "lensSerialNumber", Imf::StringAttribute( lens->LensSerial ) );
+
+    header.insert( "isoSpeed", Imf::FloatAttribute( other->iso_speed ) );
+    header.insert( "expTime", Imf::FloatAttribute( other->shutter ) );
+    header.insert( "aperture", Imf::FloatAttribute( other->aperture ) );
+    header.insert(
+        "effectiveFocalLength", Imf::FloatAttribute( other->focal_len ) );
+    header.insert( "comments", Imf::StringAttribute( other->desc ) );
+    header.insert( "owner", Imf::StringAttribute( other->artist ) );
+    header.insert( "cameraMake", Imf::StringAttribute( iparams->make ) );
+#    endif
+
+    Imf::AcesOutputFile file( name, header );
+
+    Imf::Array2D<Imf::Rgba> buffer;
+    buffer.resizeErase( width, 1 );
+
+    file.setFrameBuffer( &( buffer[0][0] ), 1, 0 );
+
+    FORI( height )
+    {
+        float *p = aces + width * channels * i;
+
+        if ( channels == 4 )
+            FORJ( width )
+            {
+                buffer[0][j].r = *p++;
+                buffer[0][j].g = *p++;
+                buffer[0][j].b = *p++;
+                buffer[0][j].a = *p++;
+            }
+        else
+            FORJ( width )
+            {
+                buffer[0][j].r = *p++;
+                buffer[0][j].g = *p++;
+                buffer[0][j].b = *p++;
+            }
+
+        file.writePixels( 1 );
+    }
+
+#else // USE_OPENEXR
+
+    halfBytes *halfIn = new ( std::nothrow ) halfBytes[channels * width];
 
     vector<std::string> filenames;
     filenames.push_back( name );
@@ -1952,11 +2054,20 @@ void AcesRender::acesWrite( const char *name, float *aces, float ratio ) const
 
     FORI( height )
     {
-        halfBytes *rgbData = halfIn + width * channels * i;
-        x.storeHalfRow( rgbData, i );
+        size_t k = width * channels * i;
+
+        FORJ( channels * width )
+        {
+            Eigen::half h( aces[k++] );
+            //ceres::h
+            //ceres::half;
+            //Imath::half tmpV( aces[k++] );
+            halfIn[j] = *(uint16_t *)( &h );
+        }
+        x.storeHalfRow( halfIn, i );
     }
 
-#if 0
+#    if 0
     std::cout << "saving aces file" << std::endl;
     std::cout << "size " << width << "x" << height << "x"
               << channels << std::endl;
@@ -1971,11 +2082,13 @@ void AcesRender::acesWrite( const char *name, float *aces, float ratio ) const
     std::cout << "keyCode " << dynamicMeta.keyCode << std::endl;
     std::cout << "capDate " << dynamicMeta.capDate << std::endl;
     std::cout << "uuid " << dynamicMeta.uuid << std::endl;
-#endif
+#    endif
 
     delete[] halfIn;
 
     x.saveImageObject();
+
+#endif // USE_OPENEXR
 }
 
 //	=====================================================================

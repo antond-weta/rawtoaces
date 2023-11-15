@@ -56,6 +56,8 @@ foreach( p LIB BIN INCLUDE CMAKE )
   endif()
 endforeach()
 
+option( USE_OPENEXR "Use OpenEXR to write output files" OFF )
+
 option( ENABLE_SHARED "Enable Shared Libraries" ON )
 
 if ( ENABLE_SHARED )

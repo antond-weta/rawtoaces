@@ -10,7 +10,7 @@ on:
 
 jobs:
   aswf:
-    name: "VFX${{matrix.vfxyear}} ${{matrix.desc}}"
+    name: "VFX${{matrix.vfxyear}} ${{matrix.desc}} exr=${{ matrix.writer }}"
     runs-on: ${{ matrix.os }}
     container:
       image: ${{ matrix.container }}
@@ -20,21 +20,26 @@ jobs:
       fail-fast: false
       
       matrix:
+        c_compiler: [gcc, clang]
+        writer: [ON, OFF]
         include:
-          - desc: gcc11 # /C++17 boost1.8 exr3.1
+          - c_compiler: gcc
+            desc: gcc11 # /C++17 boost1.8 exr3.1
             nametag: linux-vfx2023
             os: ubuntu-latest
             container: aswf/ci-osl:2023-clang15
             vfxyear: 2023
+            cxx_compiler: g++
             cxx_std: 17
-          - desc: clang15 # /C++17 boost1.8 exr3.1
+          - c_compiler: clang
+            desc: clang15 # /C++17 boost1.8 exr3.1
             nametag: linux-vfx2022-clang13
             os: ubuntu-latest
             container: aswf/ci-osl:2023-clang15
             vfxyear: 2023
-            cc_compiler: clang
             cxx_compiler: clang++
             cxx_std: 17
+            
     env:
       CXX: ${{matrix.cxx_compiler}}
       CC: ${{matrix.cc_compiler}}
@@ -61,6 +66,7 @@ jobs:
         # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
         run: >
             cmake -B build -S .
+            -DUSE_OPENEXR=${{ matrix.writer }}
 #            -DCMAKE_CXX_COMPILER=${{ matrix.cpp_compiler }}
 #            -DCMAKE_C_COMPILER=${{ matrix.c_compiler }}
 #            -DCMAKE_BUILD_TYPE=${{ matrix.build_type }}
@@ -76,7 +82,7 @@ jobs:
 
   build:
     runs-on: ${{ matrix.os }}
-    name: "${{matrix.os}} ${{matrix.c_compiler}}"
+    name: "${{matrix.os}} ${{matrix.c_compiler}} exr=${{ matrix.writer }}"
 
     strategy:
       # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
@@ -86,6 +92,7 @@ jobs:
         os: [ubuntu-latest, windows-latest, macos-latest]
         build_type: [Release]
         c_compiler: [gcc, clang, cl]
+        writer: [ON, OFF]
         include:
           - os: windows-latest
             c_compiler: cl
@@ -143,6 +150,7 @@ jobs:
         -DCXX_STANDARD=C++14
         -DCMAKE_TOOLCHAIN_FILE="${{ matrix.toolchain_file }}"
         -DENABLE_SHARED="${{ matrix.build_shared_libs }}"
+        -DUSE_OPENEXR=${{ matrix.writer }}
         
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).

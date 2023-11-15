@@ -16,8 +16,8 @@ target_link_libraries(
         Boost::boost
         Boost::system
         Boost::filesystem
-        Imath::Imath
-        Imath::ImathConfig
+#        Imath::Imath
+#        Imath::ImathConfig
 )
 
 if ( ${Ceres_VERSION_MAJOR} GREATER 1 )
