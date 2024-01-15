@@ -14,7 +14,7 @@ find_package ( Boost                REQUIRED
 )
 
 if ( USE_OPENEXR )
-   # find_package ( OpenEXR CONFIG QUIET )
+    find_package ( OpenEXR CONFIG QUIET )
     
     if ( OpenEXR_FOUND )
         message ( STATUS "OpenEXR config found ${openexr_VERSION}" )

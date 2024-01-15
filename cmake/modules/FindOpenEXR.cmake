@@ -85,7 +85,7 @@ endif()
 include(FindPackageHandleStandardArgs)
 # handle the QUIETLY and REQUIRED arguments and set OpenEXR_FOUND to TRUE
 # if all listed variables are TRUE
-find_package_handle_standard_args(openexr
+find_package_handle_standard_args(OpenEXR
                                   REQUIRED_VARS openexr_LIBRARY openexr_INCLUDE_DIR
                                   VERSION_VAR openexr_VERSION
                                   FAIL_MESSAGE "Unable to find openexr library" )
