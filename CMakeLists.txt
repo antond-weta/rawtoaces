@@ -76,6 +76,7 @@ add_subdirectory("src/${RAWTOACESIDTLIB}")
 add_subdirectory("src/${RAWTOACESLIB}")
 add_subdirectory("src/rawtoaces")
 
+add_subdirectory("src/core")
 add_subdirectory("src/rawtoaces_util2")
 add_subdirectory("src/rawtoaces2")
  

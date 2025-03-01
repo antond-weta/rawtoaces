@@ -65,6 +65,8 @@
 using namespace std;
 using namespace rta;
 
+const std::string data_path = "../../data/";
+
 void testIllum_DefaultConstructor()
 {
     Illum *illumObject = new Illum();
@@ -133,7 +135,7 @@ void testIllum_readSPD()
     Illum illumObject;
 
     std::filesystem::path illumPath = std::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        data_path + "illuminant/iso7589_stutung_380_780_5.json" );
     illumObject.readSPD( illumPath.string(), "iso7589" );
 
     double iso7589[81] = {

@@ -29,6 +29,24 @@ target_link_libraries(
         OpenImageIO::OpenImageIO
 )
 
+###########################################################
+
+add_executable (
+	Test_spectral
+	test_spectral.cpp
+)
+
+set_property(TARGET Test_spectral PROPERTY CXX_STANDARD 20)
+
+target_link_libraries(
+    Test_spectral
+    PUBLIC
+        rawtoaces_core
+        OpenImageIO::OpenImageIO
+)
+
+###########################################################
+
 add_executable (
 	Test_Illum
 	testIllum.cpp
@@ -120,11 +138,11 @@ else ()
 endif ()
 
 
-add_test ( NAME Test_Spst   COMMAND Test_Spst   )
-add_test ( NAME Test_IDT    COMMAND Test_IDT    )
-add_test ( NAME Test_Illum  COMMAND Test_Illum  )
-add_test ( NAME Test_DNGIdt COMMAND Test_DNGIdt )
-add_test ( NAME Test_Math   COMMAND Test_Math   )
-add_test ( NAME Test_Misc   COMMAND Test_Misc   )
-
+add_test ( NAME Test_Spst     COMMAND Test_Spst     )
+add_test ( NAME Test_IDT      COMMAND Test_IDT      )
+add_test ( NAME Test_Illum    COMMAND Test_Illum    )
+add_test ( NAME Test_DNGIdt   COMMAND Test_DNGIdt   )
+add_test ( NAME Test_Math     COMMAND Test_Math     )
+add_test ( NAME Test_Misc     COMMAND Test_Misc     )
+add_test ( NAME Test_spectral COMMAND Test_spectral )
 

@@ -67,6 +67,8 @@
 using namespace std;
 using namespace rta;
 
+const std::string data_path = "../../data/";
+
 void testSpst_DefaultConstructor()
 {
     char   *brand;
@@ -221,7 +223,7 @@ void testSpst_LoadSpst()
 
     Spst                 *spstTest     = new Spst();
     std::filesystem::path absolutePath = std::filesystem::absolute(
-        "../../data/camera/arri_d21_380_780_5.json" );
+        data_path + "camera/arri_d21_380_780_5.json" );
 
     try
     {

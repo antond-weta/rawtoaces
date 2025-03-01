@@ -65,6 +65,8 @@
 using namespace std;
 using namespace rta;
 
+const std::string data_path = "../../data/";
+
 void testIDT_DataAccess()
 {
     char   *brand1, *brand2, *brand3;
@@ -190,7 +192,7 @@ void testIDT_LoadCameraSpst()
 
     Idt                  *idtTest      = new Idt();
     std::filesystem::path absolutePath = std::filesystem::absolute(
-        "../../data/camera/arri_d21_380_780_5.json" );
+        data_path + "camera/arri_d21_380_780_5.json" );
 
     idtTest->loadCameraSpst( absolutePath.string(), brand, model );
 
@@ -301,7 +303,7 @@ void testIDT_LoadIlluminant()
 
     vector<string>        illumPaths;
     std::filesystem::path absolutePath = std::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        data_path + "illuminant/iso7589_stutung_380_780_5.json" );
     illumPaths.push_back( absolutePath.string() );
 
     try
@@ -354,7 +356,7 @@ void testIDT_LoadTrainingData()
     Idt *idtTest = new Idt();
 
     std::filesystem::path absolutePath = std::filesystem::absolute(
-        "../../data/training/training_spectral.json" );
+        data_path + "training/training_spectral.json" );
 
     try
     {
@@ -464,7 +466,7 @@ void testIDT_LoadCMF()
     Idt *idtTest = new Idt();
 
     std::filesystem::path absolutePath =
-        std::filesystem::absolute( "../../data/cmf/cmf_1931.json" );
+        std::filesystem::absolute( data_path + "cmf/cmf_1931.json" );
 
     try
     {
@@ -920,11 +922,11 @@ void testIDT_scaleLSC()
     Illum *illumTest = new Illum();
 
     std::filesystem::path pathIllum = std::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        data_path + "illuminant/iso7589_stutung_380_780_5.json" );
     illumTest->readSPD( pathIllum.string(), "iso7589" );
 
     std::filesystem::path pathSpst = std::filesystem::absolute(
-        "../../data/camera/nikon_d200_380_780_5.json" );
+        data_path + "camera/nikon_d200_380_780_5.json" );
     idtTest->loadCameraSpst( pathSpst.string(), brand, model );
 
     idtTest->scaleLSC( *illumTest );
@@ -984,11 +986,11 @@ void testIDT_CalCM()
     model[len] = '\0';
 
     std::filesystem::path pathSpst = std::filesystem::absolute(
-        "../../data/camera/arri_d21_380_780_5.json" );
+        data_path + "camera/arri_d21_380_780_5.json" );
     idtTest->loadCameraSpst( pathSpst.string(), brand, model );
 
     std::filesystem::path pathIllum = std::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        data_path + "illuminant/iso7589_stutung_380_780_5.json" );
     vector<string> illumPaths;
     illumPaths.push_back( pathIllum.string() );
     idtTest->loadIlluminant( illumPaths, "iso7589" );
@@ -1044,11 +1046,11 @@ void testIDT_CalWB()
     model[len] = '\0';
 
     std::filesystem::path pathSpst = std::filesystem::absolute(
-        "../../data/camera/nikon_d200_380_780_5.json" );
+        data_path + "camera/nikon_d200_380_780_5.json" );
     idtTest->loadCameraSpst( pathSpst.string(), brand, model );
 
     std::filesystem::path pathIllum = std::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        data_path + "illuminant/iso7589_stutung_380_780_5.json" );
     vector<string> illumPaths;
     illumPaths.push_back( pathIllum.string() );
     idtTest->loadIlluminant( illumPaths, "iso7589" );
@@ -1075,7 +1077,7 @@ void testIDT_SetIlluminants()
     Illum *illumTest3 = new Illum( "3200k" );
 
     std::filesystem::path pathIllum = std::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        data_path + "illuminant/iso7589_stutung_380_780_5.json" );
     illumTest1->readSPD( pathIllum.string(), "iso7589" );
 
     illumTest2->calDayLightSPD( 50 );
@@ -1173,11 +1175,11 @@ void testIDT_ChooseIllumSrc()
     model[len] = '\0';
 
     std::filesystem::path pathSpst = std::filesystem::absolute(
-        "../../data/camera/nikon_d200_380_780_5.json" );
+        data_path + "camera/nikon_d200_380_780_5.json" );
     idtTest->loadCameraSpst( pathSpst.string(), brand, model );
 
     std::filesystem::path pathIllum =
-        std::filesystem::absolute( "../../data/illuminant" );
+        std::filesystem::absolute( data_path + "illuminant" );
 
     vector<string> iFiles = openDir( pathIllum.string() );
     vector<string> illumPaths;
@@ -1192,7 +1194,7 @@ void testIDT_ChooseIllumSrc()
     idtTest->loadIlluminant( illumPaths, "na" );
 
     std::filesystem::path absolutePath = std::filesystem::absolute(
-        "../../data/training/training_spectral.json" );
+        data_path + "training/training_spectral.json" );
     idtTest->loadTrainingData( absolutePath.string() );
 
     float          wb[3] = { 1.0, 1.0, 1.0 };
@@ -1248,11 +1250,11 @@ void testIDT_ChooseIllumType()
     model[len] = '\0';
 
     std::filesystem::path pathSpst = std::filesystem::absolute(
-        "../../data/camera/nikon_d200_380_780_5.json" );
+        data_path + "camera/nikon_d200_380_780_5.json" );
     idtTest->loadCameraSpst( pathSpst.string(), brand, model );
 
     std::filesystem::path pathIllum =
-        std::filesystem::absolute( "../../data/illuminant" );
+        std::filesystem::absolute( data_path + "illuminant" );
 
     vector<string> iFiles = openDir( pathIllum.string() );
     vector<string> illumPaths;
@@ -1267,7 +1269,7 @@ void testIDT_ChooseIllumType()
     idtTest->loadIlluminant( illumPaths, "iso7589" );
 
     std::filesystem::path absolutePath = std::filesystem::absolute(
-        "../../data/training/training_spectral.json" );
+        data_path + "training/training_spectral.json" );
     idtTest->loadTrainingData( absolutePath.string() );
 
     float          wb[3] = { 1.0, 1.0, 1.0 };
@@ -1323,17 +1325,17 @@ void testIDT_CalTI()
     model[len] = '\0';
 
     std::filesystem::path pathSpst = std::filesystem::absolute(
-        "../../data/camera/nikon_d200_380_780_5.json" );
+        data_path + "camera/nikon_d200_380_780_5.json" );
     idtTest->loadCameraSpst( pathSpst.string(), brand, model );
 
     std::filesystem::path pathIllum = std::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        data_path + "illuminant/iso7589_stutung_380_780_5.json" );
     vector<string> illumPaths;
     illumPaths.push_back( pathIllum.string() );
     idtTest->loadIlluminant( illumPaths, "iso7589" );
 
     std::filesystem::path absolutePath = std::filesystem::absolute(
-        "../../data/training/training_spectral.json" );
+        data_path + "training/training_spectral.json" );
     idtTest->loadTrainingData( absolutePath.string() );
 
     // need to choose the best illuminant
@@ -5255,21 +5257,21 @@ void testIDT_CalXYZ()
     Idt *idtTest = new Idt();
 
     std::filesystem::path pathSpst = std::filesystem::absolute(
-        "../../data/camera/nikon_d200_380_780_5.json" );
+        data_path + "camera/nikon_d200_380_780_5.json" );
     idtTest->loadCameraSpst( pathSpst.string(), brand, model );
 
     std::filesystem::path pathIllum = std::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        data_path + "illuminant/iso7589_stutung_380_780_5.json" );
     vector<string> illumPaths;
     illumPaths.push_back( pathIllum.string() );
     idtTest->loadIlluminant( illumPaths, "iso7589" );
 
     std::filesystem::path pathCMF =
-        std::filesystem::absolute( "../../data/cmf/cmf_1931.json" );
+        std::filesystem::absolute( data_path + "cmf/cmf_1931.json" );
     idtTest->loadCMF( pathCMF.string() );
 
     std::filesystem::path pathTS = std::filesystem::absolute(
-        "../../data/training/training_spectral.json" );
+        data_path + "training/training_spectral.json" );
     idtTest->loadTrainingData( pathTS.string() );
 
     idtTest->chooseIllumType( "iso7589", 0 );
@@ -5492,17 +5494,17 @@ void testIDT_CalRGB()
     Idt *idtTest = new Idt();
 
     std::filesystem::path pathSpst = std::filesystem::absolute(
-        "../../data/camera/nikon_d200_380_780_5.json" );
+        data_path + "camera/nikon_d200_380_780_5.json" );
     idtTest->loadCameraSpst( pathSpst.string(), brand, model );
 
     std::filesystem::path pathIllum = std::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        data_path + "illuminant/iso7589_stutung_380_780_5.json" );
     vector<string> illumPaths;
     illumPaths.push_back( pathIllum.string() );
     idtTest->loadIlluminant( illumPaths, "iso7589" );
 
     std::filesystem::path pathTS = std::filesystem::absolute(
-        "../../data/training/training_spectral.json" );
+        data_path + "training/training_spectral.json" );
     idtTest->loadTrainingData( pathTS.string() );
 
     idtTest->chooseIllumType( "iso7589", 0 );
@@ -5725,21 +5727,21 @@ void testIDT_CurveFit()
     Idt *idtTest = new Idt();
 
     std::filesystem::path pathSpst = std::filesystem::absolute(
-        "../../data/camera/nikon_d200_380_780_5.json" );
+        data_path + "camera/nikon_d200_380_780_5.json" );
     idtTest->loadCameraSpst( pathSpst.string(), brand, model );
 
     std::filesystem::path pathIllum = std::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        data_path + "illuminant/iso7589_stutung_380_780_5.json" );
     vector<string> illumPaths;
     illumPaths.push_back( pathIllum.string() );
     idtTest->loadIlluminant( illumPaths, "iso7589" );
 
     std::filesystem::path pathTS = std::filesystem::absolute(
-        "../../data/training/training_spectral.json" );
+        data_path + "training/training_spectral.json" );
     idtTest->loadTrainingData( pathTS.string() );
 
     std::filesystem::path absolutePath =
-        std::filesystem::absolute( "../../data/cmf/cmf_1931.json" );
+        std::filesystem::absolute( data_path + "cmf/cmf_1931.json" );
     idtTest->loadCMF( absolutePath.string() );
 
     idtTest->chooseIllumType( "iso7589", 0 );
@@ -5782,21 +5784,21 @@ void testIDT_CalIDT()
     Idt *idtTest = new Idt();
 
     std::filesystem::path pathSpst = std::filesystem::absolute(
-        "../../data/camera/arri_d21_380_780_5.json" );
+        data_path + "camera/arri_d21_380_780_5.json" );
     idtTest->loadCameraSpst( pathSpst.string(), brand, model );
 
     std::filesystem::path pathIllum = std::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        data_path + "illuminant/iso7589_stutung_380_780_5.json" );
     vector<string> illumPaths;
     illumPaths.push_back( pathIllum.string() );
     idtTest->loadIlluminant( illumPaths, "iso7589" );
 
     std::filesystem::path pathTS = std::filesystem::absolute(
-        "../../data/training/training_spectral.json" );
+        data_path + "training/training_spectral.json" );
     idtTest->loadTrainingData( pathTS.string() );
 
     std::filesystem::path absolutePath =
-        std::filesystem::absolute( "../../data/cmf/cmf_1931.json" );
+        std::filesystem::absolute( data_path + "cmf/cmf_1931.json" );
     idtTest->loadCMF( absolutePath.string() );
 
     idtTest->chooseIllumType( "iso7589", 0 );

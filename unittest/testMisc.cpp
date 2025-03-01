@@ -58,13 +58,15 @@
 
 using namespace std;
 
+const std::string data_path = "../../data/";
+
 void test_OpenDir()
 {
     std::filesystem::path absolutePath =
-        std::filesystem::canonical( "../../data/illuminant" );
+        std::filesystem::canonical( data_path + "illuminant" );
 
     std::filesystem::path absolutePath_test = std::filesystem::canonical(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        data_path + "illuminant/iso7589_stutung_380_780_5.json" );
 
     vector<string> fPaths = openDir( absolutePath.string() );
 
