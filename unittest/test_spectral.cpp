@@ -6,6 +6,7 @@
 
 #include <rawtoaces/spectral_solver.hpp>
 #include <rawtoaces/spectral_data.hpp>
+#include <rawtoaces/define.h>
 
 using namespace std;
 using namespace rta;
@@ -261,11 +262,8 @@ void test_CAT()
     };
     // clang-format on
 
-    std::vector<double> src( 3 );
-    std::vector<double> dst( 3 );
-
-    src.assign( src_wb, src_wb + 3 );
-    dst.assign( dst_wb, dst_wb + 3 );
+    std::vector<double> src( src_wb, src_wb + 3 );
+    std::vector<double> dst( XYZ_w, XYZ_w + 3 );
 
     rta::core::SpectralSolver solver;
     auto                      result = solver.calculate_CAT( src, dst );
@@ -293,13 +291,24 @@ void test_solver()
     solver.scale_illuminant( illuminant );
     check_scale_illuminant( illuminant );
 
-    auto wb = solver.calculate_white_balance( illuminant );
+    auto wb =
+        solver.calculate_white_balance( illuminant, solver.current_camera );
     OIIO_CHECK_EQUAL_THRESH( wb[0], 1.1397265403538983, 1e-30 );
     OIIO_CHECK_EQUAL( wb[1], 1 );
     OIIO_CHECK_EQUAL_THRESH( wb[2], 2.3240151642033657, 1e-30 );
 
     rta::core::SpectralData cmf( data_path + "cmf/cmf_1931.json", true );
     check_cmf( cmf );
+
+    solver.current_illuminant = illuminant;
+    solver.white_balance      = wb;
+    solver.colour_matching    = cmf;
+
+    solver.prepare_training_data(
+        data_path + "training/training_spectral.json" );
+
+    auto XYZ = solver.calculate_training_XYZ();
+    auto RGB = solver.calculate_training_RGB();
 }
 
 int main( int, char ** )
