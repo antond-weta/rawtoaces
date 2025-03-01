@@ -18,7 +18,7 @@ struct Spectrum
     struct Shape
     {
         float first = 0, last = 0, step = 0;
-        auto  operator<=>( const Shape & ) const = default;
+        auto  operator<=>( const Shape  & ) const = default;
     } shape;
 
     inline static Shape ReferenceShape = { 380, 780, 5 };

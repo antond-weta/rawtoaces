@@ -18,7 +18,8 @@ namespace rta
 namespace core
 {
 
-void parse_string( nlohmann::json &j, std::string &dst, const std::string &key )
+inline void
+parse_string( nlohmann::json &j, std::string &dst, const std::string &key )
 {
     auto &v = j[key];
     if ( v.is_null() )
