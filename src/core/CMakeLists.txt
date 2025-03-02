@@ -3,6 +3,7 @@ include_directories( "${CMAKE_CURRENT_SOURCE_DIR}" )
 
 add_library( rawtoaces_core ${DO_SHARED}
     spectral_solver.cpp
+    matrix_solver.cpp
 
     # Make the headers visible in IDEs. This should not affect the builds.
     ../../include/rawtoaces/define.h
@@ -13,6 +14,7 @@ add_library( rawtoaces_core ${DO_SHARED}
     ../../include/rawtoaces/spectrum.hpp
     ../../include/rawtoaces/spectral_data.hpp
     ../../include/rawtoaces/spectral_solver.hpp
+    ../../include/rawtoaces/matrix_solver.hpp
 )
 
 set_property(TARGET rawtoaces_core PROPERTY CXX_STANDARD 20)
@@ -48,6 +50,7 @@ install(FILES
     ${PROJECT_SOURCE_DIR}/include/rawtoaces/spectrum
     ${PROJECT_SOURCE_DIR}/include/rawtoaces/spectral_data.h
     ${PROJECT_SOURCE_DIR}/include/rawtoaces/spectral_solver.h
+    ${PROJECT_SOURCE_DIR}/include/rawtoaces/matrix_solver.h
     DESTINATION include/rawtoaces
 )
 

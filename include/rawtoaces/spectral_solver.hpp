@@ -34,6 +34,7 @@ public:
 
     std::vector<std::vector<double>> calculate_training_XYZ() const;
     std::vector<std::vector<double>> calculate_training_RGB() const;
+    std::vector<std::vector<double>> calculate_IDT() const;
 };
 
 } // namespace core

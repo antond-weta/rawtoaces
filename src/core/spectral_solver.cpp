@@ -5,6 +5,7 @@
 #include <assert.h>
 
 #include <rawtoaces/spectral_solver.hpp>
+#include <rawtoaces/matrix_solver.hpp>
 #include <rawtoaces/define.h>
 #include <rawtoaces/mathOps.h>
 
@@ -198,6 +199,20 @@ std::vector<std::vector<double>> SpectralSolver::calculate_training_RGB() const
     }
 
     return result;
+}
+
+std::vector<std::vector<double>> SpectralSolver::calculate_IDT(
+
+) const
+{
+    auto src_points = calculate_training_RGB();
+    auto dst_points = calculate_training_XYZ();
+
+    const double identity[3] = { 1, 1, 1 };
+
+    MatrixSolver matrix_solver(
+        src_points, dst_points, XYZ_w, identity, acesrgb_XYZ_3 );
+    return matrix_solver.solve();
 }
 
 } // namespace core

@@ -309,6 +309,15 @@ void test_solver()
 
     auto XYZ = solver.calculate_training_XYZ();
     auto RGB = solver.calculate_training_RGB();
+    auto IDT = solver.calculate_IDT();
+
+    double true_IDT[3][3] = { { 0.744769240, 0.143420257, 0.111810501 },
+                              { 0.045175883, 1.008261897, -0.053437780 },
+                              { 0.024714133, -0.124552527, 1.099838394 } };
+
+    for ( size_t i = 0; i < 3; i++ )
+        for ( size_t j = 0; j < 3; j++ )
+            OIIO_CHECK_EQUAL_THRESH( IDT[i][j], true_IDT[i][j], 1e-9 );
 }
 
 int main( int, char ** )
