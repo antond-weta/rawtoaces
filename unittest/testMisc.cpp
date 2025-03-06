@@ -75,7 +75,7 @@ void test_OpenDir()
 
 void test_LowerCase()
 {
-    char text[]      = "RAWTOACES";
+    char text[]      = "RawToAces";
     char text_test[] = "rawtoaces";
 
     lowerCase( text );

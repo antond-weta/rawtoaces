@@ -1,42 +1,47 @@
-cmake_minimum_required(VERSION 3.10)
-include_directories( "${CMAKE_CURRENT_SOURCE_DIR}" )
+# Copyright Contributors to the rawtoaces project.
+# SPDX-License-Identifier: Apache-2.0
+# https://github.com/AcademySoftwareFoundation/rawtoaces
 
-add_library ( rawtoaces_util2 ${DO_SHARED}
+include_directories ("${CMAKE_CURRENT_SOURCE_DIR}")
+
+add_library (${RawToAcesUtil2_LIB} ${DO_SHARED}
     transform_cache.cpp
     transform_cache.h
-    rawtoaces_util.cpp
-    ${PROJECT_SOURCE_DIR}/include/rawtoaces/rawtoaces_util.h
-    ${PROJECT_SOURCE_DIR}/include/rawtoaces/cache_base.h
+    image_converter.cpp
+    ${RawToAces_INCLUDE_DIR}/rawtoaces/image_converter.h
+    ${RawToAces_INCLUDE_DIR}/rawtoaces/cache_base.h
 )
 
-set_property(TARGET rawtoaces_util2 PROPERTY CXX_STANDARD 17)
+set_property (TARGET ${RawToAcesUtil2_LIB} PROPERTY CXX_STANDARD 17)
 
-if ( OIIO_FOUND )
-    target_include_directories ( rawtoaces_util2 PRIVATE ${OIIO_INCLUDE_DIRS} )
-    target_link_directories    ( rawtoaces_util2 PUBLIC  ${OIIO_LIBRARY_DIRS} )
-    target_link_libraries      ( rawtoaces_util2
+if (OIIO_FOUND)
+    target_include_directories (${RawToAcesUtil2_LIB} PRIVATE ${OIIO_INCLUDE_DIRS})
+    target_link_directories (${RawToAcesUtil2_LIB} PUBLIC  ${OIIO_LIBRARY_DIRS})
+    target_link_libraries (${RawToAcesUtil2_LIB}
         PUBLIC
             ${OIIO_LIBRARIES}
             ${OIIO_LDFLAGS_OTHER}
     )
-endif()
+endif ()
  
-target_link_libraries ( rawtoaces_util2
+target_link_libraries (${RawToAcesUtil2_LIB}
     PRIVATE
-        ${RAWTOACESIDTLIB}
+        ${RawToAcesIdt_LIB}
     PUBLIC
         OpenImageIO::OpenImageIO
 )
     
-set_target_properties( rawtoaces_util2 PROPERTIES
-    SOVERSION ${RAWTOACES_MAJOR_VERSION}.${RAWTOACES_MINOR_VERSION}.${RAWTOACES_PATCH_VERSION}
-    VERSION ${RAWTOACES_VERSION} )
+set_target_properties(
+    ${RawToAcesUtil2_LIB} PROPERTIES
+    SOVERSION ${RawToAces_MAJOR_VERSION}
+    VERSION ${RawToAces_VERSION}
+)
 
 install(
     FILES
-        ${PROJECT_SOURCE_DIR}/include/rawtoaces/rawtoaces_util.h
-        ${PROJECT_SOURCE_DIR}/include/rawtoaces/cache_base.h	 	
-    DESTINATION include/rawtoaces
+         ${RawToAces_INCLUDE_DIR}/rawtoaces/image_converter.h
+         ${RawToAces_INCLUDE_DIR}/rawtoaces/cache_base.h	 	
+    DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}/${PROJECT_NAME}
 )
 
-install( TARGETS rawtoaces_util2 DESTINATION lib )
+install (TARGETS ${RawToAcesUtil2_LIB} DESTINATION ${CMAKE_INSTALL_LIBDIR})

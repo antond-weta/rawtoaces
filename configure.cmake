@@ -1,21 +1,29 @@
-# Until we get some of these modules into the upstream packages, put them here
+# Copyright Contributors to the rawtoaces project.
+# SPDX-License-Identifier: Apache-2.0
+# https://github.com/AcademySoftwareFoundation/rawtoaces
+
+# until we get some of these modules into the upstream packages, put them here
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_INSTALL_PREFIX}/share/CMake")
 set(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} "${CMAKE_SOURCE_DIR}/../")
 
-find_package ( OpenImageIO   CONFIG REQUIRED )
-find_package ( AcesContainer CONFIG REQUIRED )
-find_package ( Eigen3        CONFIG REQUIRED )
-find_package ( Imath         CONFIG REQUIRED )
-find_package ( nlohmann_json CONFIG REQUIRED )
-find_package ( Ceres                REQUIRED )
-
-find_package (libraw CONFIG QUIET )
+find_package (OpenImageIO CONFIG REQUIRED)
+find_package (AcesContainer CONFIG REQUIRED)
+find_package (Eigen3 CONFIG REQUIRED)
+find_package (Imath CONFIG REQUIRED)
+find_package (nlohmann_json CONFIG REQUIRED)
+find_package (Ceres REQUIRED)
+find_package (libraw CONFIG QUIET)
 
 if (libraw_FOUND )
-    message("STATUS LibRaw config found")
-    set ( LIBRAW_CONFIG_FOUND TRUE )
+    message("LibRaw config found")
+    set (LIBRAW_CONFIG_FOUND TRUE)
 else ()
-    message("WARNING LibRaw config not found, trying to find a module.")
+    message(WARNING "LibRaw config not found, trying to find a module.")
     find_package(libraw MODULE REQUIRED)
+    if (libraw_FOUND)
+        message(STATUS "LibRaw found as module.")
+    else()
+        message(FATAL_ERROR "LibRaw not found. Please ensure it is installed and accessible.")
+    endif()
 endif ()

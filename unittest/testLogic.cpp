@@ -54,7 +54,7 @@
 
 #include <OpenImageIO/unittest.h>
 
-#include <rawtoaces/mathOps.h>
+#include <rawtoaces/mathops.h>
 
 using namespace std;
 

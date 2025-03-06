@@ -52,15 +52,15 @@
 // THAN A.M.P.A.S., WHETHER DISCLOSED OR UNDISCLOSED.
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef _ACESRENDER_h__
-#define _ACESRENDER_h__
+#pragma once
 
+#include <rawtoaces/version.h>
 #include <rawtoaces/rta.h>
 #include <rawtoaces/define.h>
 #include <libraw/libraw.h>
 #include <unordered_map>
 
-using namespace rta;
+RAWTOACES_USING_NAMESPACE
 
 void create_key( unordered_map<string, char> &keys );
 void usage( const char *prog );
@@ -135,4 +135,3 @@ private:
     vector<string>         _illuminants;
     vector<string>         _cameras;
 };
-#endif

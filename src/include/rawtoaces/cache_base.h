@@ -2,6 +2,10 @@
 // SPDX-License-Identifier: Apache-2.0
 // https://github.com/AcademySoftwareFoundation/rawtoaces
 
+#pragma once
+
+#include <rawtoaces/version.h>
+
 #include <iostream>
 #include <filesystem>
 
@@ -11,8 +15,8 @@
 
 #include <rawtoaces/metadata.h>
 
-namespace rta
-{
+RAWTOACES_NAMESPACE_BEGIN
+
 namespace cache
 {
 
@@ -105,4 +109,5 @@ private:
 };
 
 } // namespace cache
-} // namespace rta
+
+RAWTOACES_NAMESPACE_END

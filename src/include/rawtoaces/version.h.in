@@ -1,0 +1,14 @@
+// Copyright Contributors to the rawtoaces project.
+// SPDX-License-Identifier: Apache-2.0
+// https://github.com/AcademySoftwareFoundation/rawtoaces
+
+#pragma once
+
+#define RAWTOACES_VERSION_MAJOR "@RawToAces_MAJOR_VERSION@"
+#define RAWTOACES_VERSION_MINOR "@RawToAces_MINOR_VERSION@"
+#define RAWTOACES_VERSION_PATCH "@RawToAces_PATCH_VERSION@"
+#define RAWTOACES_VERSION "@RawToAces_VERSION@"
+
+#define RAWTOACES_NAMESPACE_BEGIN namespace @RawToAces_NAMESPACE@ {
+#define RAWTOACES_NAMESPACE_END }
+#define RAWTOACES_USING_NAMESPACE using namespace @RawToAces_NAMESPACE@;

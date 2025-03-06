@@ -52,8 +52,9 @@
 // THAN A.M.P.A.S., WHETHER DISCLOSED OR UNDISCLOSED.
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef _RTA_h__
-#define _RTA_h__
+#pragma once
+
+#include <rawtoaces/version.h>
 
 #include <string>
 #include <vector>
@@ -63,8 +64,8 @@
 
 using namespace std;
 
-namespace rta
-{
+RAWTOACES_NAMESPACE_BEGIN
+
 struct CIEXYZ
 {
     CIEXYZ(){};
@@ -160,7 +161,10 @@ public:
     char *getModel();
 
     int getWLIncrement();
-    int loadSpst( const string &path, const char *maker, const char *model );
+    int loadSpst(
+        const string &path,
+        const char   *maker = nullptr,
+        const char   *model = nullptr );
 
     vector<RGBSen> getSensitivity();
 
@@ -168,7 +172,7 @@ private:
     char          *_brand;
     char          *_model;
     int            _increment;
-    int            _spstMaxCol;
+    long           _spstMaxCol;
     vector<RGBSen> _rgbsen;
 };
 
@@ -268,5 +272,4 @@ struct Objfun
     const vector<vector<double>> _outLAB;
 };
 
-} // namespace rta
-#endif
+RAWTOACES_NAMESPACE_END

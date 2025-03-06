@@ -52,8 +52,7 @@
 // THAN A.M.P.A.S., WHETHER DISCLOSED OR UNDISCLOSED.
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef _USAGE_h__
-#define _USAGE_h__
+#pragma once
 
 int my_progress_callback(
     void *d, enum LibRaw_progress p, int iteration, int expected )
@@ -114,6 +113,4 @@ void timerprint( const char *msg, const char *filename )
     msec /= (float)unit.QuadPart / 1000.0f;
     printf( "Timing: %s/%s: %6.3f msec\n", filename, msg, msec );
 };
-#endif
-
 #endif

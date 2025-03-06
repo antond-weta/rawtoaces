@@ -2,13 +2,12 @@
 // SPDX-License-Identifier: Apache-2.0
 // https://github.com/AcademySoftwareFoundation/rawtoaces
 
-#ifndef RTA_METADATA_H_
-#define RTA_METADATA_H_
+#pragma once
 
+#include <rawtoaces/version.h>
 #include <vector>
 
-namespace rta
-{
+RAWTOACES_NAMESPACE_BEGIN
 
 struct Metadata
 {
@@ -55,6 +54,4 @@ struct Metadata
     }
 };
 
-} // namespace rta
-
-#endif // RTA_METADATA_H_
+RAWTOACES_NAMESPACE_END

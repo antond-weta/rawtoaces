@@ -53,15 +53,14 @@
 ///////////////////////////////////////////////////////////////////////////
 
 #include <rawtoaces/rta.h>
-#include <rawtoaces/mathOps.h>
+#include <rawtoaces/mathops.h>
 
 #include <fstream>
 #include <nlohmann/json.hpp>
 
 using namespace ceres;
 
-namespace rta
-{
+RAWTOACES_NAMESPACE_BEGIN
 
 Illum::Illum()
 {
@@ -600,17 +599,29 @@ int Spst::loadSpst( const string &path, const char *maker, const char *model )
         std::ifstream  i( path );
         nlohmann::json data = nlohmann::json::parse( i );
 
-        const string camera_make = data["header"]["manufacturer"];
-        if ( camera_make.empty() || cmp_str( camera_make.c_str(), maker ) != 0 )
+        const string camera_manufacturer = data["header"]["manufacturer"];
+        const string camera_model        = data["header"]["model"];
+
+        // normalize names by replacing spaces with underscores
+        auto normalize_name = []( const std::string &str ) {
+            std::string modified = str;
+            std::replace( modified.begin(), modified.end(), ' ', '_' );
+            return modified;
+        };
+
+        std::string maker_str = maker ? maker : "";
+        std::string model_str = model ? model : "";
+
+        // check if maker or model is defined and mismatches, return early without loading
+        if ( ( !maker_str.empty() && maker_str != camera_manufacturer &&
+               normalize_name( maker_str ) != camera_manufacturer ) ||
+             ( !model_str.empty() && model_str != camera_model &&
+               normalize_name( model_str ) != camera_model ) )
+        {
             return 0;
+        }
 
-        setBrand( camera_make.c_str() );
-
-        const string camera_model = data["header"]["model"];
-        if ( camera_model.empty() ||
-             cmp_str( camera_model.c_str(), model ) != 0 )
-            return 0;
-
+        setBrand( camera_manufacturer.c_str() );
         setModel( camera_model.c_str() );
 
         vector<int> wavs;
@@ -836,7 +847,7 @@ void Idt::scaleLSC( Illum &Illuminant )
 {
     assert( _cameraSpst._spstMaxCol >= 0 && ( Illuminant._data ).size() != 0 );
 
-    int            size = _cameraSpst._rgbsen.size();
+    auto           size = _cameraSpst._rgbsen.size();
     vector<double> colMax( size, 1.0 );
     switch ( _cameraSpst._spstMaxCol )
     {
@@ -1880,4 +1891,4 @@ template <typename T> bool Objfun::operator()( const T *B, T *residuals ) const
     return true;
 }
 
-} // namespace rta
+RAWTOACES_NAMESPACE_END

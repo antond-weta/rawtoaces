@@ -52,10 +52,10 @@
 // THAN A.M.P.A.S., WHETHER DISCLOSED OR UNDISCLOSED.
 ///////////////////////////////////////////////////////////////////////////
 
-#ifndef _MATHOPS_h__
-#define _MATHOPS_h__
+#pragma once
 
-#include "define.h"
+#include <rawtoaces/version.h>
+#include <rawtoaces/define.h>
 
 #include <cfloat>
 
@@ -215,8 +215,8 @@ template <typename T> T sumVector( const vector<T> &vct )
 
 template <typename T> T sumVectorM( const vector<vector<T>> &vct )
 {
-    int row = vct.size();
-    int col = vct[0].size();
+    auto row = vct.size();
+    auto col = vct[0].size();
 
     T                                   sum = T( 0 );
     Eigen::Matrix<T, Eigen::Dynamic, 1> v;
@@ -451,7 +451,8 @@ solveVM( const vector<vector<T>> &vct1, const vector<vector<T>> &vct2 )
     m2( i, j ) = vct2[i][j];
 
     // colPivHouseholderQr()
-    m3 = m1.jacobiSvd( Eigen::ComputeThinU | Eigen::ComputeThinV ).solve( m2 );
+    // m3 = m1.jacobiSvd( Eigen::ComputeThinU | Eigen::ComputeThinV ).solve( m2 );
+    m3 = m1.colPivHouseholderQr().solve( m2 );
 
     vector<vector<T>> vct3( m3.rows(), vector<T>( m3.cols() ) );
     FORIJ( m3.rows(), m3.cols() ) vct3[i][j] = m3( i, j );
@@ -641,5 +642,3 @@ vector<vector<T>> getCalcXYZt( const vector<vector<T>> &RGB, const T B[6] )
 
     return outCalcXYZt;
 };
-
-#endif

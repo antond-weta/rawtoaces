@@ -2,11 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 // https://github.com/AcademySoftwareFoundation/rawtoaces
 
-#include <rawtoaces/rawtoaces_util.h>
+#include <rawtoaces/image_converter.h>
 #include <rawtoaces/define.h>
 #include <rawtoaces/metadata.h>
 #include <rawtoaces/rta.h>
-#include <rawtoaces/mathOps.h>
+#include <rawtoaces/mathops.h>
 
 #include "transform_cache.h"
 
@@ -16,8 +16,7 @@
 
 #include <filesystem>
 
-namespace rta
-{
+RAWTOACES_NAMESPACE_BEGIN
 
 cache::TransformCache transform_cache;
 
@@ -69,11 +68,11 @@ const char *HelpString =
 
 const char *UsageString =
     "\n"
-    "    rawtoaces --wb-method METHOD --mat-method METHOD [PARAMS] "
+    "    rawtoaces2 --wb-method METHOD --mat-method METHOD [PARAMS] "
     "path/to/dir/or/file ...\n"
     "Examples: \n"
-    "    rawtoaces --wb-method metadata --mat-method metadata raw_file.cr3\n"
-    "    rawtoaces --wb-method illuminant --illuminant 3200K --mat-method "
+    "    rawtoaces2 --wb-method metadata --mat-method metadata raw_file.cr3\n"
+    "    rawtoaces2 --wb-method illuminant --illuminant 3200K --mat-method "
     "spectral raw_file.cr3\n";
 
 template <typename T, typename F1, typename F2>
@@ -308,60 +307,6 @@ void ImageConverter::init_parser( OIIO::ArgParse &argParse )
 
 bool ImageConverter::parse_params( const OIIO::ArgParse &argParse )
 {
-    if ( argParse["list-cameras"].get<int>() )
-    {
-        std::cout
-            << "Spectral sensitivity data are available for the following "
-            << "cameras:" << std::endl;
-
-        Idt                      idt;
-        auto                     paths = cache::collectDataFiles( "camera" );
-        std::vector<std::string> cameras;
-        for ( auto path: paths )
-        {
-            Spst spst;
-            if ( spst.loadSpst( path, nullptr, nullptr ) )
-            {
-                cameras.push_back(
-                    std::string( spst.getBrand() ) + " " + spst.getModel() );
-            }
-        }
-
-        std::sort( cameras.begin(), cameras.end() );
-
-        for ( auto s: cameras )
-            std::cout << "- " << s << std::endl;
-        std::cout << std::endl;
-        exit( 0 );
-    }
-
-    if ( argParse["list-illuminants"].get<int>() )
-    {
-        std::cout << "The following illuminants are supported:" << std::endl;
-        std::cout << "- The standard illuminant series D (e.g., D60, D6025)"
-                  << std::endl;
-        std::cout << "- Black-body radiation (e.g., 3200K)" << std::endl;
-
-        Idt  idt;
-        auto paths = cache::collectDataFiles( "illuminant" );
-        std::vector<std::string> illuminants;
-        for ( auto path: paths )
-        {
-            Illum illum;
-            if ( illum.readSPD( path, "na" ) )
-            {
-                illuminants.push_back( illum.getIllumType() );
-            }
-        }
-
-        std::sort( illuminants.begin(), illuminants.end() );
-
-        for ( auto s: illuminants )
-            std::cout << "- " << s << std::endl;
-        std::cout << std::endl;
-        exit( 0 );
-    }
-
     std::string wb_method = argParse["wb-method"].get();
 
     if ( wb_method == "metadata" )
@@ -519,6 +464,74 @@ bool ImageConverter::parse_params( const OIIO::ArgParse &argParse )
     output_dir    = argParse["output-dir"].get();
 
     return true;
+}
+
+bool ImageConverter::parse_list_cameras( const OIIO::ArgParse &argParse )
+{
+    if ( argParse["list-cameras"].get<int>() )
+    {
+        std::cout
+            << "Spectral sensitivity data are available for the following "
+            << "cameras:" << std::endl;
+
+        Idt                      idt;
+        auto                     paths = cache::collectDataFiles( "camera" );
+        std::vector<std::string> cameras;
+        for ( auto path: paths )
+        {
+            Spst spst;
+            if ( spst.loadSpst( path ) )
+            {
+                cameras.push_back(
+                    std::string( spst.getBrand() ) + " " + spst.getModel() );
+            }
+        }
+
+        std::sort( cameras.begin(), cameras.end() );
+
+        for ( auto s: cameras )
+            std::cout << "- " << s << std::endl;
+        std::cout << std::endl;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool ImageConverter::parse_list_illuminants( const OIIO::ArgParse &argParse )
+{
+    if ( argParse["list-illuminants"].get<int>() )
+    {
+        std::cout << "The following illuminants are supported:" << std::endl;
+        std::cout << "- The standard illuminant series D (e.g., D60, D6025)"
+                  << std::endl;
+        std::cout << "- Black-body radiation (e.g., 3200K)" << std::endl;
+
+        Idt  idt;
+        auto paths = cache::collectDataFiles( "illuminant" );
+        std::vector<std::string> illuminants;
+        for ( auto path: paths )
+        {
+            Illum illum;
+            if ( illum.readSPD( path, "na" ) )
+            {
+                illuminants.push_back( illum.getIllumType() );
+            }
+        }
+
+        std::sort( illuminants.begin(), illuminants.end() );
+
+        for ( auto s: illuminants )
+            std::cout << "- " << s << std::endl;
+        std::cout << std::endl;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
 }
 
 bool ImageConverter::configure(
@@ -1081,4 +1094,4 @@ void ImageConverter::prepareIDT_nonDNG( const OIIO::ImageSpec &imageSpec )
     _CAT_matrix = getCAT( dIV, dOV );
 }
 
-} // namespace rta
+RAWTOACES_NAMESPACE_END

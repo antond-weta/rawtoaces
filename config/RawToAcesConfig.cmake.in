@@ -1,0 +1,14 @@
+# Copyright Contributors to the rawtoaces project.
+# SPDX-License-Identifier: Apache-2.0
+# https://github.com/AcademySoftwareFoundation/rawtoaces
+
+@PACKAGE_INIT@
+
+# Find dependencies required by RawToAces
+include (CMakeFindDependencyMacro)
+find_dependency (OpenImageIO)
+find_dependency (Eigen3 REQUIRED)
+find_dependency (Ceres REQUIRED)
+
+include ("${CMAKE_CURRENT_LIST_DIR}/@PROJECT_NAME@Targets.cmake")
+check_required_components ("@PROJECT_NAME@")

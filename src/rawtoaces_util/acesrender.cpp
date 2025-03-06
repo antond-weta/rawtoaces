@@ -53,7 +53,7 @@
 ///////////////////////////////////////////////////////////////////////////
 
 #include <rawtoaces/acesrender.h>
-#include <rawtoaces/mathOps.h>
+#include <rawtoaces/mathops.h>
 
 #include <Imath/half.h>
 #include <nlohmann/json.hpp>

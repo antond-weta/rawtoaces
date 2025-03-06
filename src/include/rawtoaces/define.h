@@ -51,8 +51,8 @@
 // COLOR ENCODING SYSTEM, OR APPLICATIONS THEREO,  HELD BY PARTIES OTHER
 // THAN A.M.P.A.S., WHETHER DISCLOSED OR UNDISCLOSED.
 ///////////////////////////////////////////////////////////////////////////
-#ifndef _DEFINE_h__
-#define _DEFINE_h__
+
+#pragma once
 
 #include <string>
 #include <vector>
@@ -524,5 +524,3 @@ inline dataPath &pathsFinder()
     }
     return cdp;
 };
-
-#endif

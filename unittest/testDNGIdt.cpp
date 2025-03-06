@@ -60,7 +60,8 @@
 #include <rawtoaces/define.h>
 
 using namespace std;
-using namespace rta;
+
+RAWTOACES_USING_NAMESPACE
 
 void testIDT_CcttoMired()
 {

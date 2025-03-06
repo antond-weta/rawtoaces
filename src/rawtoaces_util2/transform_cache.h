@@ -4,8 +4,8 @@
 
 #include <rawtoaces/cache_base.h>
 
-namespace rta
-{
+RAWTOACES_NAMESPACE_BEGIN
+
 namespace cache
 {
 
@@ -101,4 +101,5 @@ std::vector<std::string> collectDataFiles( const std::string &type );
 std::string              findFile( const std::string &filename );
 
 } // namespace cache
-} // namespace rta
+
+RAWTOACES_NAMESPACE_END
