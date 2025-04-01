@@ -8,7 +8,8 @@ if [[ "$OSTYPE" == "linux-gnu"* ]] || [[ "$OSTYPE" == "darwin"* ]]; then
     cmake \
         -S v1/aces_container \
         -B v1/aces_container/build \
-        -DCMAKE_CXX_FLAGS="-Wno-c++11-narrowing"
+        -DCMAKE_CXX_FLAGS="-Wno-c++11-narrowing" \
+        -DCMAKE_POLICY_VERSION_MINIMUM=3.10
     cmake --build v1/aces_container/build
     sudo cmake --install v1/aces_container/build
 else
@@ -16,7 +17,8 @@ else
         -S v1/aces_container \
         -B v1/aces_container/build \
         -DCMAKE_INSTALL_PREFIX="." \
-        -DBUILD_SHARED_LIBS=OFF
+        -DBUILD_SHARED_LIBS=OFF \
+        -DCMAKE_POLICY_VERSION_MINIMUM=3.10
     cmake --build v1/aces_container/build --config Release
     cmake --install v1/aces_container/build --config Release
 fi

@@ -6,7 +6,13 @@ add_library ( ${RAWTOACESLIB} ${DO_SHARED}
     ../../include/rawtoaces/acesrender.h
 )
 
+
+
 if ( AcesContainer_FOUND )
+
+    # This is ugly, but it fixes the Windows CI build.
+    set(AcesContainer_INCLUDE_DIRS ${AcesContainer_INCLUDE_DIRS} ${AcesContainer_INCLUDE_DIRS}/../../../include)
+
     target_include_directories ( ${RAWTOACESLIB} PRIVATE ${AcesContainer_INCLUDE_DIRS} )
     target_link_directories    ( ${RAWTOACESLIB} PUBLIC  ${AcesContainer_LIBRARY_DIRS} )
     target_link_libraries      ( ${RAWTOACESLIB}

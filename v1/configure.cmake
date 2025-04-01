@@ -12,12 +12,6 @@ find_package ( Boost         CONFIG REQUIRED
         unit_test_framework
 )
 
-if (RTA_CENTOS7_CERES_HACK)
-    find_package ( Ceres MODULE REQUIRED )
-else ()
-    find_package ( Ceres CONFIG REQUIRED )
-endif ()
-
 find_package (libraw CONFIG QUIET )
 
 if (libraw_FOUND )

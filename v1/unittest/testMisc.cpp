@@ -63,10 +63,10 @@ using namespace std;
 BOOST_AUTO_TEST_CASE( Test_OpenDir )
 {
     boost::filesystem::path absolutePath =
-        boost::filesystem::canonical( "../../data/illuminant" );
+        boost::filesystem::canonical( "../../../data/illuminant" );
 
     boost::filesystem::path absolutePath_test = boost::filesystem::canonical(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        "../../../data/illuminant/iso7589_stutung_380_780_5.json" );
 
     vector<string> fPaths = openDir( absolutePath.string() );
 

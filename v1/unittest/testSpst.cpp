@@ -225,7 +225,7 @@ BOOST_AUTO_TEST_CASE( TestSpst_LoadSpst )
 
     Spst                   *spstTest     = new Spst();
     boost::filesystem::path absolutePath = boost::filesystem::absolute(
-        "../../data/camera/arri_d21_380_780_5.json" );
+        "../../../data/camera/arri_d21_380_780_5.json" );
 
     BOOST_CHECK_NO_THROW(
         spstTest->loadSpst( absolutePath.string(), brand, model ) );

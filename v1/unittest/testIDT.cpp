@@ -193,7 +193,7 @@ BOOST_AUTO_TEST_CASE( TestIDT_LoadCameraSpst )
 
     Idt                    *idtTest      = new Idt();
     boost::filesystem::path absolutePath = boost::filesystem::absolute(
-        "../../data/camera/arri_d21_380_780_5.json" );
+        "../../../data/camera/arri_d21_380_780_5.json" );
 
     idtTest->loadCameraSpst( absolutePath.string(), brand, model );
 
@@ -301,7 +301,7 @@ BOOST_AUTO_TEST_CASE( TestIDT_LoadIlluminant )
 
     vector<string>          illumPaths;
     boost::filesystem::path absolutePath = boost::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        "../../../data/illuminant/iso7589_stutung_380_780_5.json" );
     illumPaths.push_back( absolutePath.string() );
 
     BOOST_CHECK_NO_THROW( idtTest->loadIlluminant( illumPaths, "iso7589" ) );
@@ -347,7 +347,7 @@ BOOST_AUTO_TEST_CASE( TestIDT_LoadTrainingData )
     Idt *idtTest = new Idt();
 
     boost::filesystem::path absolutePath = boost::filesystem::absolute(
-        "../../data/training/training_spectral.json" );
+        "../../../data/training/training_spectral.json" );
 
     BOOST_CHECK_NO_THROW( idtTest->loadTrainingData( absolutePath.string() ) );
 
@@ -450,7 +450,7 @@ BOOST_AUTO_TEST_CASE( TestIDT_LoadCMF )
     Idt *idtTest = new Idt();
 
     boost::filesystem::path absolutePath =
-        boost::filesystem::absolute( "../../data/cmf/cmf_1931.json" );
+        boost::filesystem::absolute( "../../../data/cmf/cmf_1931.json" );
 
     BOOST_CHECK_NO_THROW( idtTest->loadCMF( absolutePath.string() ) );
     vector<CMF> cmfTest = idtTest->getCMF();
@@ -898,11 +898,11 @@ BOOST_AUTO_TEST_CASE( TestIDT_scaleLSC )
     Illum *illumTest = new Illum();
 
     boost::filesystem::path pathIllum = boost::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        "../../../data/illuminant/iso7589_stutung_380_780_5.json" );
     illumTest->readSPD( pathIllum.string(), "iso7589" );
 
     boost::filesystem::path pathSpst = boost::filesystem::absolute(
-        "../../data/camera/nikon_d200_380_780_5.json" );
+        "../../../data/camera/nikon_d200_380_780_5.json" );
     idtTest->loadCameraSpst( pathSpst.string(), brand, model );
 
     idtTest->scaleLSC( *illumTest );
@@ -961,11 +961,11 @@ BOOST_AUTO_TEST_CASE( TestIDT_CalCM )
     model[len] = '\0';
 
     boost::filesystem::path pathSpst = boost::filesystem::absolute(
-        "../../data/camera/arri_d21_380_780_5.json" );
+        "../../../data/camera/arri_d21_380_780_5.json" );
     idtTest->loadCameraSpst( pathSpst.string(), brand, model );
 
     boost::filesystem::path pathIllum = boost::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        "../../../data/illuminant/iso7589_stutung_380_780_5.json" );
     vector<string> illumPaths;
     illumPaths.push_back( pathIllum.string() );
     idtTest->loadIlluminant( illumPaths, "iso7589" );
@@ -1021,11 +1021,11 @@ BOOST_AUTO_TEST_CASE( TestIDT_CalWB )
     model[len] = '\0';
 
     boost::filesystem::path pathSpst = boost::filesystem::absolute(
-        "../../data/camera/nikon_d200_380_780_5.json" );
+        "../../../data/camera/nikon_d200_380_780_5.json" );
     idtTest->loadCameraSpst( pathSpst.string(), brand, model );
 
     boost::filesystem::path pathIllum = boost::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        "../../../data/illuminant/iso7589_stutung_380_780_5.json" );
     vector<string> illumPaths;
     illumPaths.push_back( pathIllum.string() );
     idtTest->loadIlluminant( illumPaths, "iso7589" );
@@ -1052,7 +1052,7 @@ BOOST_AUTO_TEST_CASE( TestIDT_SetIlluminants )
     Illum *illumTest3 = new Illum( "3200k" );
 
     boost::filesystem::path pathIllum = boost::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        "../../../data/illuminant/iso7589_stutung_380_780_5.json" );
     illumTest1->readSPD( pathIllum.string(), "iso7589" );
 
     illumTest2->calDayLightSPD( 50 );
@@ -1149,11 +1149,11 @@ BOOST_AUTO_TEST_CASE( TestIDT_ChooseIllumSrc )
     model[len] = '\0';
 
     boost::filesystem::path pathSpst = boost::filesystem::absolute(
-        "../../data/camera/nikon_d200_380_780_5.json" );
+        "../../../data/camera/nikon_d200_380_780_5.json" );
     idtTest->loadCameraSpst( pathSpst.string(), brand, model );
 
     boost::filesystem::path pathIllum =
-        boost::filesystem::absolute( "../../data/illuminant" );
+        boost::filesystem::absolute( "../../../data/illuminant" );
 
     vector<string> iFiles = openDir( pathIllum.string() );
     vector<string> illumPaths;
@@ -1168,7 +1168,7 @@ BOOST_AUTO_TEST_CASE( TestIDT_ChooseIllumSrc )
     idtTest->loadIlluminant( illumPaths, "na" );
 
     boost::filesystem::path absolutePath = boost::filesystem::absolute(
-        "../../data/training/training_spectral.json" );
+        "../../../data/training/training_spectral.json" );
     idtTest->loadTrainingData( absolutePath.string() );
 
     float          wb[3] = { 1.0, 1.0, 1.0 };
@@ -1224,11 +1224,11 @@ BOOST_AUTO_TEST_CASE( TestIDT_ChooseIllumType )
     model[len] = '\0';
 
     boost::filesystem::path pathSpst = boost::filesystem::absolute(
-        "../../data/camera/nikon_d200_380_780_5.json" );
+        "../../../data/camera/nikon_d200_380_780_5.json" );
     idtTest->loadCameraSpst( pathSpst.string(), brand, model );
 
     boost::filesystem::path pathIllum =
-        boost::filesystem::absolute( "../../data/illuminant" );
+        boost::filesystem::absolute( "../../../data/illuminant" );
 
     vector<string> iFiles = openDir( pathIllum.string() );
     vector<string> illumPaths;
@@ -1243,7 +1243,7 @@ BOOST_AUTO_TEST_CASE( TestIDT_ChooseIllumType )
     idtTest->loadIlluminant( illumPaths, "iso7589" );
 
     boost::filesystem::path absolutePath = boost::filesystem::absolute(
-        "../../data/training/training_spectral.json" );
+        "../../../data/training/training_spectral.json" );
     idtTest->loadTrainingData( absolutePath.string() );
 
     float          wb[3] = { 1.0, 1.0, 1.0 };
@@ -1299,17 +1299,17 @@ BOOST_AUTO_TEST_CASE( TestIDT_CalTI )
     model[len] = '\0';
 
     boost::filesystem::path pathSpst = boost::filesystem::absolute(
-        "../../data/camera/nikon_d200_380_780_5.json" );
+        "../../../data/camera/nikon_d200_380_780_5.json" );
     idtTest->loadCameraSpst( pathSpst.string(), brand, model );
 
     boost::filesystem::path pathIllum = boost::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        "../../../data/illuminant/iso7589_stutung_380_780_5.json" );
     vector<string> illumPaths;
     illumPaths.push_back( pathIllum.string() );
     idtTest->loadIlluminant( illumPaths, "iso7589" );
 
     boost::filesystem::path absolutePath = boost::filesystem::absolute(
-        "../../data/training/training_spectral.json" );
+        "../../../data/training/training_spectral.json" );
     idtTest->loadTrainingData( absolutePath.string() );
 
     // need to choose the best illuminant
@@ -5231,21 +5231,21 @@ BOOST_AUTO_TEST_CASE( TestIDT_CalXYZ )
     Idt *idtTest = new Idt();
 
     boost::filesystem::path pathSpst = boost::filesystem::absolute(
-        "../../data/camera/nikon_d200_380_780_5.json" );
+        "../../../data/camera/nikon_d200_380_780_5.json" );
     idtTest->loadCameraSpst( pathSpst.string(), brand, model );
 
     boost::filesystem::path pathIllum = boost::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        "../../../data/illuminant/iso7589_stutung_380_780_5.json" );
     vector<string> illumPaths;
     illumPaths.push_back( pathIllum.string() );
     idtTest->loadIlluminant( illumPaths, "iso7589" );
 
     boost::filesystem::path pathCMF =
-        boost::filesystem::absolute( "../../data/cmf/cmf_1931.json" );
+        boost::filesystem::absolute( "../../../data/cmf/cmf_1931.json" );
     idtTest->loadCMF( pathCMF.string() );
 
     boost::filesystem::path pathTS = boost::filesystem::absolute(
-        "../../data/training/training_spectral.json" );
+        "../../../data/training/training_spectral.json" );
     idtTest->loadTrainingData( pathTS.string() );
 
     idtTest->chooseIllumType( "iso7589", 0 );
@@ -5468,17 +5468,17 @@ BOOST_AUTO_TEST_CASE( TestIDT_CalRGB )
     Idt *idtTest = new Idt();
 
     boost::filesystem::path pathSpst = boost::filesystem::absolute(
-        "../../data/camera/nikon_d200_380_780_5.json" );
+        "../../../data/camera/nikon_d200_380_780_5.json" );
     idtTest->loadCameraSpst( pathSpst.string(), brand, model );
 
     boost::filesystem::path pathIllum = boost::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        "../../../data/illuminant/iso7589_stutung_380_780_5.json" );
     vector<string> illumPaths;
     illumPaths.push_back( pathIllum.string() );
     idtTest->loadIlluminant( illumPaths, "iso7589" );
 
     boost::filesystem::path pathTS = boost::filesystem::absolute(
-        "../../data/training/training_spectral.json" );
+        "../../../data/training/training_spectral.json" );
     idtTest->loadTrainingData( pathTS.string() );
 
     idtTest->chooseIllumType( "iso7589", 0 );
@@ -5701,21 +5701,21 @@ BOOST_AUTO_TEST_CASE( TestIDT_CurveFit )
     Idt *idtTest = new Idt();
 
     boost::filesystem::path pathSpst = boost::filesystem::absolute(
-        "../../data/camera/nikon_d200_380_780_5.json" );
+        "../../../data/camera/nikon_d200_380_780_5.json" );
     idtTest->loadCameraSpst( pathSpst.string(), brand, model );
 
     boost::filesystem::path pathIllum = boost::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        "../../../data/illuminant/iso7589_stutung_380_780_5.json" );
     vector<string> illumPaths;
     illumPaths.push_back( pathIllum.string() );
     idtTest->loadIlluminant( illumPaths, "iso7589" );
 
     boost::filesystem::path pathTS = boost::filesystem::absolute(
-        "../../data/training/training_spectral.json" );
+        "../../../data/training/training_spectral.json" );
     idtTest->loadTrainingData( pathTS.string() );
 
     boost::filesystem::path absolutePath =
-        boost::filesystem::absolute( "../../data/cmf/cmf_1931.json" );
+        boost::filesystem::absolute( "../../../data/cmf/cmf_1931.json" );
     idtTest->loadCMF( absolutePath.string() );
 
     idtTest->chooseIllumType( "iso7589", 0 );
@@ -5758,21 +5758,21 @@ BOOST_AUTO_TEST_CASE( TestIDT_CalIDT )
     Idt *idtTest = new Idt();
 
     boost::filesystem::path pathSpst = boost::filesystem::absolute(
-        "../../data/camera/arri_d21_380_780_5.json" );
+        "../../../data/camera/arri_d21_380_780_5.json" );
     idtTest->loadCameraSpst( pathSpst.string(), brand, model );
 
     boost::filesystem::path pathIllum = boost::filesystem::absolute(
-        "../../data/illuminant/iso7589_stutung_380_780_5.json" );
+        "../../../data/illuminant/iso7589_stutung_380_780_5.json" );
     vector<string> illumPaths;
     illumPaths.push_back( pathIllum.string() );
     idtTest->loadIlluminant( illumPaths, "iso7589" );
 
     boost::filesystem::path pathTS = boost::filesystem::absolute(
-        "../../data/training/training_spectral.json" );
+        "../../../data/training/training_spectral.json" );
     idtTest->loadTrainingData( pathTS.string() );
 
     boost::filesystem::path absolutePath =
-        boost::filesystem::absolute( "../../data/cmf/cmf_1931.json" );
+        boost::filesystem::absolute( "../../../data/cmf/cmf_1931.json" );
     idtTest->loadCMF( absolutePath.string() );
 
     idtTest->chooseIllumType( "iso7589", 0 );

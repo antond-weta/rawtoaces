@@ -103,7 +103,7 @@ BOOST_AUTO_TEST_CASE( TestIDT_XYZToColorTemperature )
 {
     LibRaw                  rawProcessor;
     boost::filesystem::path pathToRaw = boost::filesystem::absolute(
-        "../../unittest/materials/blackmagic_cinema_camera_cinemadng.dng" );
+        "../../../v1/unittest/materials/blackmagic_cinema_camera_cinemadng.dng" );
     int ret = rawProcessor.open_file( ( pathToRaw.string() ).c_str() );
     ret     = rawProcessor.unpack();
 
@@ -122,7 +122,7 @@ BOOST_AUTO_TEST_CASE( TestIDT_XYZtoCameraWeightedMatrix )
 {
     LibRaw                  rawProcessor;
     boost::filesystem::path pathToRaw = boost::filesystem::absolute(
-        "../../unittest/materials/blackmagic_cinema_camera_cinemadng.dng" );
+        "../../../v1/unittest/materials/blackmagic_cinema_camera_cinemadng.dng" );
     int ret = rawProcessor.open_file( ( pathToRaw.string() ).c_str() );
     ret     = rawProcessor.unpack();
 
@@ -144,7 +144,7 @@ BOOST_AUTO_TEST_CASE( TestIDT_FindXYZtoCameraMtx )
 {
     LibRaw                  rawProcessor;
     boost::filesystem::path pathToRaw = boost::filesystem::absolute(
-        "../../unittest/materials/blackmagic_cinema_camera_cinemadng.dng" );
+        "../../../v1/unittest/materials/blackmagic_cinema_camera_cinemadng.dng" );
     int ret = rawProcessor.open_file( ( pathToRaw.string() ).c_str() );
     ret     = rawProcessor.unpack();
 
@@ -195,7 +195,7 @@ BOOST_AUTO_TEST_CASE( TestIDT_GetDNGCATMatrix )
 
     LibRaw                  rawProcessor;
     boost::filesystem::path pathToRaw = boost::filesystem::absolute(
-        "../../unittest/materials/blackmagic_cinema_camera_cinemadng.dng" );
+        "../../../v1/unittest/materials/blackmagic_cinema_camera_cinemadng.dng" );
     int ret = rawProcessor.open_file( ( pathToRaw.string() ).c_str() );
     ret     = rawProcessor.unpack();
 
@@ -217,7 +217,7 @@ BOOST_AUTO_TEST_CASE( TestIDT_GetDNGIDTMatrix )
 
     LibRaw                  rawProcessor;
     boost::filesystem::path pathToRaw = boost::filesystem::absolute(
-        "../../unittest/materials/blackmagic_cinema_camera_cinemadng.dng" );
+        "../../../v1/unittest/materials/blackmagic_cinema_camera_cinemadng.dng" );
     int ret = rawProcessor.open_file( ( pathToRaw.string() ).c_str() );
     ret     = rawProcessor.unpack();
 
