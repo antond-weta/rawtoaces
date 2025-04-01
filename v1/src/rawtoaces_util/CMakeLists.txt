@@ -1,8 +1,9 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 include_directories( "${CMAKE_CURRENT_SOURCE_DIR}" )
 
 add_library ( ${RAWTOACESLIB} ${DO_SHARED}
     acesrender.cpp
+    ../../include/rawtoaces/acesrender.h
 )
 
 if ( AcesContainer_FOUND )
@@ -37,7 +38,7 @@ set_target_properties( ${RAWTOACESLIB} PROPERTIES
   VERSION ${RAWTOACES_VERSION} )
 
 install(FILES
-  ${PROJECT_SOURCE_DIR}/include/rawtoaces/acesrender.h	 	
+  ${PROJECT_SOURCE_DIR}/v1/include/rawtoaces/acesrender.h
  	DESTINATION include/rawtoaces
 )
 

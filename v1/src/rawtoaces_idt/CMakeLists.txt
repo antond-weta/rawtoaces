@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 include_directories( "${CMAKE_CURRENT_SOURCE_DIR}" )
 
 add_library( ${RAWTOACESIDTLIB} ${DO_SHARED}
@@ -21,6 +21,14 @@ target_link_libraries(
 	Eigen3::Eigen
 )
 
+if ( LIBRAW_CONFIG_FOUND )
+    target_link_libraries ( ${RAWTOACESIDTLIB} PUBLIC libraw::raw )
+else ()
+    target_include_directories(${RAWTOACESIDTLIB} PUBLIC ${libraw_INCLUDE_DIR}/.. )
+    target_link_directories(${RAWTOACESIDTLIB} PUBLIC ${libraw_LIBRARY_DIRS} )
+    target_link_libraries(${RAWTOACESIDTLIB} PUBLIC ${libraw_LIBRARIES} ${libraw_LDFLAGS_OTHER} )
+endif ()
+
 if ( ${Ceres_VERSION_MAJOR} GREATER 1 )
     target_link_libraries( ${RAWTOACESIDTLIB} PUBLIC Ceres::ceres )
 else ()
@@ -35,11 +43,11 @@ set_target_properties( ${RAWTOACESIDTLIB} PROPERTIES
 )
 
 install(FILES
-    ${PROJECT_SOURCE_DIR}/include/rawtoaces/define.h
-    ${PROJECT_SOURCE_DIR}/include/rawtoaces/mathOps.h
-    ${PROJECT_SOURCE_DIR}/include/rawtoaces/rta.h
+    ${PROJECT_SOURCE_DIR}/v1/include/rawtoaces/define.h
+    ${PROJECT_SOURCE_DIR}/v1/include/rawtoaces/mathOps.h
+    ${PROJECT_SOURCE_DIR}/v1/include/rawtoaces/rta.h
 
- 	DESTINATION include/rawtoaces
+    DESTINATION include/rawtoaces
 )
 
 install( TARGETS ${RAWTOACESIDTLIB} DESTINATION lib )
