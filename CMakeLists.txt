@@ -1,13 +1,5 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 project( RAWTOACES )
-
-set( RAWTOACES_MAJOR_VERSION 1 )
-set( RAWTOACES_MINOR_VERSION 0 )
-set( RAWTOACES_PATCH_VERSION 0 )
-set( RAWTOACES_VERSION ${RAWTOACES_MAJOR_VERSION}.${RAWTOACES_MINOR_VERSION}.${RAWTOACES_PATCH_VERSION} )
-
-set(RAWTOACESIDTLIB "rawtoaces_idt")
-set(RAWTOACESLIB "rawtoaces_util")
 
 set( CMAKE_MACOSX_RPATH 1 )
 
@@ -67,79 +59,12 @@ endif ()
 
 include ( configure.cmake )
 
+add_subdirectory("v1")
 
-# generated config files end up in binary dir so to find them, need
-# to add to include path
-include_directories( "${PROJECT_SOURCE_DIR}/include" )
-
-add_definitions( -DPACKAGE="RAWTOACES" -DVERSION="${RAWTOACES_VERSION}" )
-add_subdirectory("src/${RAWTOACESIDTLIB}")
-add_subdirectory("src/${RAWTOACESLIB}")
-
-
- 
-# Create a RAWTOACESBuildTreeSettings.cmake file for the use from the build tree
-file(RELATIVE_PATH CONF_REL_INCLUDE_DIR "${INSTALL_CMAKE_DIR}" "${INSTALL_INCLUDE_DIR}")
-configure_file(config/RAWTOACESBuildTreeSettings.cmake.in "${PROJECT_BINARY_DIR}/RAWTOACESBuildTreeSettings.cmake" @ONLY)
-configure_file(config/RAWTOACESConfig.cmake.in "${PROJECT_BINARY_DIR}/RAWTOACESConfig.cmake" @ONLY)
-configure_file(config/RAWTOACESConfigVersion.cmake.in "${PROJECT_BINARY_DIR}/RAWTOACESConfigVersion.cmake" @ONLY)
-
-if ( PKG_CONFIG_FOUND )
-  configure_file(config/RAWTOACES.pc.in "${PROJECT_BINARY_DIR}/RAWTOACES.pc" @ONLY)
-  install( FILES "${PROJECT_BINARY_DIR}/RAWTOACES.pc" DESTINATION lib/pkgconfig COMPONENT dev )
-endif()
-
-install( FILES
-  "${PROJECT_BINARY_DIR}/RAWTOACESConfig.cmake"
-  "${PROJECT_BINARY_DIR}/RAWTOACESConfigVersion.cmake"
-  DESTINATION "${INSTALL_CMAKE_DIR}" COMPONENT dev)
-
-if ( WIN32 AND NOT CYGWIN )
-install( FILES "${PROJECT_BINARY_DIR}/RAWTOACESLibraryDepends.cmake" DESTINATION
-  "${INSTALL_CMAKE_DIR}" COMPONENT dev )
-endif( )
 
 if ( APPLE OR UNIX )
-	install (DIRECTORY data DESTINATION include/rawtoaces)
+	install (DIRECTORY data DESTINATION share/rawtoaces)
 endif()
 
-### to build rawtoaces ###
-
-add_executable( rawtoaces
-    main.cpp
-)
-
-target_include_directories( rawtoaces
-    PUBLIC
-        ${AcesContainer_INCLUDE_DIRS}
-)
-
-target_link_libraries ( rawtoaces
-    PUBLIC
-        ${RAWTOACESLIB}
-    INTERFACE
-        Boost::headers
-)
-
-if ( LIBRAW_CONFIG_FOUND )
-    target_link_libraries ( rawtoaces PUBLIC libraw::raw )
-else ()
-    target_link_directories(rawtoaces PUBLIC ${libraw_LIBRARY_DIRS} )
-    target_link_libraries(rawtoaces PUBLIC ${libraw_LIBRARIES} ${libraw_LDFLAGS_OTHER} )
-endif ()
-
-enable_testing()
-add_subdirectory(unittest)
-
-install( TARGETS rawtoaces DESTINATION bin )
-
-# uninstall target
-configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
-    IMMEDIATE @ONLY)
-
-add_custom_target(uninstall
-    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
 
 

@@ -5,7 +5,7 @@ set -ex
 time sudo apt-get update
 
 time sudo apt-get -q -f install -y \
-    libimath-dev \
-    libboost-dev libboost-filesystem-dev \
-    libboost-test-dev \
-    libraw-dev libceres-dev
+    libceres-dev \
+    libopencv-dev \
+    openimageio-tools libopenimageio-dev \
+    nlohmann-json3-dev

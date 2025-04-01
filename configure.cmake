@@ -1,30 +1,18 @@
-# Until we get some of these modules into the upstream packages, put them here
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/modules/")
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_INSTALL_PREFIX}/share/CMake")
-
-
-find_package ( AcesContainer CONFIG REQUIRED )
 find_package ( Eigen3        CONFIG REQUIRED )
-find_package ( Imath         CONFIG REQUIRED )
-find_package ( Boost                REQUIRED
-    COMPONENTS
-        system
-        filesystem
-        unit_test_framework
-)
+find_package ( Ceres                REQUIRED )
 
 if (RTA_CENTOS7_CERES_HACK)
-    find_package ( Ceres MODULE REQUIRED )
+    #
+    # This is a hack to make rawtoaces build on Centos 7 on CI.
+    # ceres-solver-1.12 which is available via yum on Centos 7 comes with
+    # broken Config.cmake file. This hack works around that. It requires that
+    # ceres-solver-1.12 is already installed via yum.
+    #
+
+    set (Ceres_VERSION_MAJOR 0)
+    set (CERES_INCLUDE_DIRS "/usr/include")
+    set (CERES_LIBRARIES "/usr/lib64/libceres.so")
+    set (Ceres_FOUND 1)
 else ()
     find_package ( Ceres CONFIG REQUIRED )
-endif ()
-
-find_package (libraw CONFIG QUIET )
-
-if (libraw_FOUND )
-    message("STATUS LibRaw config found")
-    set ( LIBRAW_CONFIG_FOUND TRUE )
-else ()
-    message("WARNING LibRaw config not found, trying to find a module.")
-    find_package(libraw MODULE REQUIRED)
 endif ()
