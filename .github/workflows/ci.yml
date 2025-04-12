@@ -78,6 +78,7 @@ jobs:
         working-directory: build
         run: |
           ctest --rerun-failed --output-on-failure --test-dir v1
+          ctest --rerun-failed --output-on-failure --test-dir tests
 
   aswf:
     name: "VFX${{matrix.vfxyear}} ${{matrix.desc}}"
@@ -156,7 +157,9 @@ jobs:
 
       - name: Test
         working-directory: build
-        run: ctest --rerun-failed --output-on-failure --test-dir v1
+        run: |
+            ctest --rerun-failed --output-on-failure --test-dir v1
+            ctest --rerun-failed --output-on-failure --test-dir tests
 
 ##################################
 
@@ -243,4 +246,6 @@ jobs:
       working-directory: ${{ steps.strings.outputs.build-output-dir }}
       # Execute tests defined by the CMake configuration. Note that --build-config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).
       # See https://cmake.org/cmake/help/latest/manual/ctest.1.html for more detail
-      run: ctest --build-config ${{ matrix.build_type }} --rerun-failed --output-on-failure --test-dir v1
+      run: |
+        ctest --build-config ${{ matrix.build_type }} --rerun-failed --output-on-failure --test-dir v1
+        ctest --build-config ${{ matrix.build_type }} --rerun-failed --output-on-failure --test-dir tests

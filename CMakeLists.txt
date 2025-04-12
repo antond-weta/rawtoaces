@@ -1,7 +1,15 @@
 cmake_minimum_required(VERSION 3.10)
 project( RAWTOACES )
 
-set( CMAKE_MACOSX_RPATH 1 )
+set( RTA_MAJOR_VERSION 2 )
+set( RTA_MINOR_VERSION 0 )
+set( RTA_PATCH_VERSION 0 )
+set( RTA_VERSION ${RTA_MAJOR_VERSION}.${RTA_MINOR_VERSION}.${RTA_PATCH_VERSION} )
+
+option( RTA_ENABLE_EIGEN "Enable Eigen dependency" TRUE )
+option( RTA_ENABLE_CERES "Enable Ceres-Solver dependency" TRUE )
+
+#set( CMAKE_MACOSX_RPATH 1 )
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 #    set(warnings "/W4 /WX /EHsc")
@@ -60,7 +68,8 @@ endif ()
 include ( configure.cmake )
 
 add_subdirectory("v1")
-
+add_subdirectory("src")
+add_subdirectory("tests")
 
 if ( APPLE OR UNIX )
 	install (DIRECTORY data DESTINATION share/rawtoaces)

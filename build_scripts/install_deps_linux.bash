@@ -8,4 +8,6 @@ time sudo apt-get -q -f install -y \
     libimath-dev \
     libboost-dev libboost-filesystem-dev \
     libboost-test-dev \
-    libraw-dev libceres-dev
+    libraw-dev libceres-dev \
+    libopencv-dev \
+    openimageio-tools libopenimageio-dev
