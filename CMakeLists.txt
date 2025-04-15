@@ -120,13 +120,6 @@ target_link_libraries ( rawtoaces
         Boost::headers
 )
 
-if ( LIBRAW_CONFIG_FOUND )
-    target_link_libraries ( rawtoaces PUBLIC libraw::raw )
-else ()
-    target_link_directories(rawtoaces PUBLIC ${libraw_LIBRARY_DIRS} )
-    target_link_libraries(rawtoaces PUBLIC ${libraw_LIBRARIES} ${libraw_LDFLAGS_OTHER} )
-endif ()
-
 enable_testing()
 add_subdirectory(unittest)
 

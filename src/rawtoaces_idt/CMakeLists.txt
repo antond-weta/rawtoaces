@@ -16,9 +16,15 @@ target_link_libraries(
         Boost::boost
         Boost::system
         Boost::filesystem
-        Imath::Imath
-        Imath::ImathConfig
 )
+
+if ( LIBRAW_CONFIG_FOUND )
+    target_link_libraries ( ${RAWTOACESIDTLIB} PUBLIC libraw::raw )
+else ()
+    target_include_directories(${RAWTOACESIDTLIB} PUBLIC ${libraw_INCLUDE_DIR}/.. )
+    target_link_directories(${RAWTOACESIDTLIB} PUBLIC ${libraw_LIBRARY_DIRS} )
+    target_link_libraries(${RAWTOACESIDTLIB} PUBLIC ${libraw_LIBRARIES} ${libraw_LDFLAGS_OTHER} )
+endif ()
 
 if ( ${Ceres_VERSION_MAJOR} GREATER 1 )
     target_link_libraries( ${RAWTOACESIDTLIB} PUBLIC Ceres::ceres )

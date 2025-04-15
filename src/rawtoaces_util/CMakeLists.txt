@@ -20,17 +20,7 @@ target_link_libraries ( ${RAWTOACESLIB}
         ${RAWTOACESIDTLIB}
     INTERFACE
         Eigen3::Eigen
-        Imath::Imath
-        Imath::ImathConfig
 )
-    
-if ( LIBRAW_CONFIG_FOUND )
-    target_link_libraries ( ${RAWTOACESLIB} PUBLIC libraw::raw )
-else ()
-    target_link_directories(${RAWTOACESLIB} PUBLIC ${libraw_LIBRARY_DIRS} )
-    target_link_libraries(${RAWTOACESLIB} PUBLIC ${libraw_LIBRARIES} ${libraw_LDFLAGS_OTHER} )
-endif ()
-
 
 set_target_properties( ${RAWTOACESLIB} PROPERTIES
   SOVERSION ${RAWTOACES_MAJOR_VERSION}.${RAWTOACES_MINOR_VERSION}.${RAWTOACES_PATCH_VERSION}
