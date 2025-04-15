@@ -5,7 +5,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_INSTALL_PREFIX}/share/CMake"
 
 find_package ( AcesContainer CONFIG REQUIRED )
 find_package ( Eigen3        CONFIG REQUIRED )
-find_package ( Imath         CONFIG REQUIRED )
 find_package ( Ceres                REQUIRED )
 find_package ( Boost                REQUIRED
     COMPONENTS

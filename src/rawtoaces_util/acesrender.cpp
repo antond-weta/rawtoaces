@@ -1875,7 +1875,7 @@ void AcesRender::acesWrite( const char *name, float *aces, float ratio ) const
             aces[i] = (double)aces[i] * INV_65535 * ( _opts.scale ) * ratio;
 
         Eigen::half tmpV( aces[i] );
-        halfIn[i] = Eigen::half_impl::raw_half_as_uint16(tmpV);
+        halfIn[i] = Eigen::half_impl::raw_half_as_uint16( tmpV );
     }
 
     vector<std::string> filenames;
