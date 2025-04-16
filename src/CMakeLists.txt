@@ -3,7 +3,8 @@ cmake_minimum_required(VERSION 3.10)
 add_compile_options("$<$<C_COMPILER_ID:MSVC>:/utf-8>")
 add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
-add_subdirectory("core")
+add_subdirectory("rawtoaces/core")
+add_subdirectory("rawtoaces/util")
 
 set(INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/include/
     CACHE PATH "Location of header files" )

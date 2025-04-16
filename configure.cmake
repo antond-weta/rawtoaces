@@ -1,5 +1,6 @@
 find_package ( Eigen3        CONFIG REQUIRED )
 find_package ( OpenImageIO   CONFIG REQUIRED )
+find_package ( nlohmann_json CONFIG REQUIRED )
 
 if (RTA_CENTOS7_CERES_HACK)
     #
