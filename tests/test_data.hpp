@@ -1,3 +1,8 @@
+// Copyright Contributors to the rawtoaces project.
+// SPDX-License-Identifier: Apache-2.0
+// https://github.com/AcademySoftwareFoundation/rawtoaces
+
+#pragma once
 
 namespace rta
 {

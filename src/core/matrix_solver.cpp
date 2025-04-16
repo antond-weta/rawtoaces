@@ -554,6 +554,8 @@ bool solve_nonlinear(
     size_t           max_steps,
     size_t           verbosity )
 {
+    assert( objective != nullptr );
+
     size_t n = objective->camera_points.size();
     assert( n > 0 );
 
@@ -565,6 +567,11 @@ bool solve_nonlinear(
 
     while ( true )
     {
+        if ( verbosity > 2 )
+        {
+            std::cerr << "Starting step " << step << "." << std::endl;
+        }
+
         if ( step == max_steps )
         {
             if ( verbosity > 0 )
@@ -601,6 +608,13 @@ bool solve_nonlinear(
         {
             if ( !solve_linear( A, b ) )
             {
+                if ( verbosity > 0 )
+                {
+                    std::cerr << "The linear system does not have a solution."
+                              << std::endl;
+                }
+
+                delete objective;
                 return false;
             }
         }
@@ -630,6 +644,7 @@ bool solve_nonlinear(
         step++;
     }
 
+    delete objective;
     return true;
 }
 
@@ -772,20 +787,22 @@ public:
 
                 for ( size_t j = 0; j < 6; j++ )
                 {
-                    T xyz_[3] = { out_xyz_[j][0],
-                                  out_xyz_[j][1],
-                                  out_xyz_[j][2] };
+                    T xyz_[3] = { out_xyz_[j][0] / xyz_W[0][0],
+                                  out_xyz_[j][1] / xyz_W[0][1],
+                                  out_xyz_[j][2] / xyz_W[0][2] };
 
-                    for ( size_t c = 0; c < 3; c++ )
-                    {
-                        xyz_[j] /= xyz_W[0][c];
-                    }
+                    //                    for ( size_t c = 0; c < 3; c++ )
+                    //                    {
+                    //                        xyz_[c] /= xyz_W[0][c];
+                    //                    }
 
                     T lab_[3];
                     xyz_to_lab_( xyz1, xyz_, lab_ );
 
                     for ( size_t c = 0; c < 3; c++ )
+                    {
                         ( *jacobian )[i * 3 + c][j] = T( lab_[c] );
+                    }
                 }
             }
         }
@@ -862,15 +879,21 @@ bool solve_IDT_LAB(
 #ifdef ENABLE_CERES
     if ( use_ceres )
     {
+        if ( verbosity > 1 )
+            std::cerr << "Using ceres-solver based non-linear solver."
+                      << std::endl;
+
         result = solve_nonlinear_ceres<Objective_LAB>(
             x, objective, 1e-20, 100, verbosity );
     }
     else
 #endif // ENABLE_CERES
     {
+        if ( verbosity > 1 )
+            std::cerr << "Using built-in non-linear solver." << std::endl;
+
         result = solve_nonlinear<Objective_LAB>(
             x, objective, 1e-20, 100, verbosity );
-        delete objective;
     }
 
     if ( !result )

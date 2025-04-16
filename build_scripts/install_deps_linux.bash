@@ -10,4 +10,5 @@ time sudo apt-get -q -f install -y \
     libboost-test-dev \
     libraw-dev libceres-dev \
     libopencv-dev \
-    openimageio-tools libopenimageio-dev
+    openimageio-tools libopenimageio-dev \
+    nlohmann-json3-dev

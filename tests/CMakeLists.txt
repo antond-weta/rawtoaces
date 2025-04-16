@@ -58,3 +58,20 @@ target_link_libraries(
 set_property(TARGET test_core_metadata PROPERTY CXX_STANDARD 20)
 add_test ( NAME test_core_metadata COMMAND test_core_metadata )
 
+################################################################################
+
+add_executable( test_util_spectral
+    test_data.hpp
+    util_spectral.cpp
+)
+
+target_link_libraries(
+    test_util_spectral
+    PUBLIC
+        rawtoaces_core
+        rawtoaces_util
+        OpenImageIO::OpenImageIO
+)
+
+set_property(TARGET test_util_spectral PROPERTY CXX_STANDARD 20)
+add_test ( NAME test_util_spectral COMMAND test_util_spectral )

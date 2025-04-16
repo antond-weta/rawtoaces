@@ -22,7 +22,7 @@ jobs:
             os: ubuntu-latest
             container: aswf/ci-osl:2022-clang11
             vfxyear: 2022
-            cxx_std: 17
+            cxx_std: 20
           - desc: clang14
             nametag: linux-vfx2022-clang14
             os: ubuntu-latest
@@ -30,7 +30,7 @@ jobs:
             vfxyear: 2022
             cc_compiler: clang
             cxx_compiler: clang++
-            cxx_std: 17
+            cxx_std: 20
         
     runs-on: ${{ matrix.os }}
     container:
@@ -63,7 +63,7 @@ jobs:
         shell: bash
         run: |
             build_scripts/install_aces_container.bash
-            sudo yum install --setopt=tsflags=nodocs -y eigen3-devel ceres-solver-devel LibRaw-devel
+            sudo yum install --setopt=tsflags=nodocs -y eigen3-devel ceres-solver-devel LibRaw-devel json-devel
 
       - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -97,7 +97,7 @@ jobs:
             os: ubuntu-latest
             container: aswf/ci-osl:2023-clang15
             vfxyear: 2023
-            cxx_std: 17
+            cxx_std: 20
           - desc: clang15 # /C++17 boost1.8 exr3.1
             nametag: linux-vfx2022-clang15
             os: ubuntu-latest
@@ -105,14 +105,14 @@ jobs:
             vfxyear: 2023
             cc_compiler: clang
             cxx_compiler: clang++
-            cxx_std: 17
+            cxx_std: 20
             
           - desc: gcc11
             nametag: linux-vfx2024
             os: ubuntu-latest
             container: aswf/ci-osl:2024-clang17
             vfxyear: 2024
-            cxx_std: 17
+            cxx_std: 20
           - desc: clang17
             nametag: linux-vfx2024-clang17
             os: ubuntu-latest
@@ -120,7 +120,7 @@ jobs:
             vfxyear: 2024
             cc_compiler: clang
             cxx_compiler: clang++
-            cxx_std: 17
+            cxx_std: 20
 
     env:
       CXX: ${{matrix.cxx_compiler}}
@@ -141,7 +141,7 @@ jobs:
         shell: bash
         run: |
             build_scripts/install_aces_container.bash
-            sudo yum install --setopt=tsflags=nodocs -y eigen3-devel ceres-solver-devel LibRaw-devel
+            sudo yum install --setopt=tsflags=nodocs -y eigen3-devel ceres-solver-devel LibRaw-devel json-devel
 
       - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -171,14 +171,12 @@ jobs:
       # Set fail-fast to false to ensure that feedback is delivered for all matrix combinations. Consider changing this to true when your workflow is stable.
       fail-fast: false
 
-    # windows-latest got updated to a newer version of cmake which broke the gflags installation.
-    # Switching to windows-2019
       matrix:
-        os: [ubuntu-latest, windows-2019, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
         build_type: [Release]
         c_compiler: [gcc, clang, cl]
         include:
-          - os: windows-2019
+          - os: windows-latest
             c_compiler: cl
             cpp_compiler: cl
             install_deps: install_deps_windows
@@ -200,9 +198,9 @@ jobs:
             install_deps: install_deps_mac
             build_shared_libs: ON
         exclude:
-          - os: windows-2019
+          - os: windows-latest
             c_compiler: gcc
-          - os: windows-2019
+          - os: windows-latest
             c_compiler: clang
           - os: ubuntu-latest
             c_compiler: cl
@@ -234,7 +232,7 @@ jobs:
         cmake
         -B ${{ steps.strings.outputs.build-output-dir }}
         -S ${{ github.workspace }}
-        -DCXX_STANDARD=C++17
+        -DCXX_STANDARD=C++20
         -DCMAKE_TOOLCHAIN_FILE="${{ matrix.toolchain_file }}"
         -DENABLE_SHARED="${{ matrix.build_shared_libs }}"
         
