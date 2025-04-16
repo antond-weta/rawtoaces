@@ -34,7 +34,7 @@ void SpectralSolver::create_blackbody_illuminant(
     // k = 1.380649×10−23 - Bolzmann constant
     // T - temperature
 
-    out.illuminant = "Blackbody " + std::to_string( int( temp ) ) + "K";
+    out.illuminant = std::to_string( int( temp ) ) + "K";
 
     if ( !out.data.contains( "main" ) )
     {
@@ -62,7 +62,7 @@ void SpectralSolver::create_blackbody_illuminant(
 void SpectralSolver::create_daylight_illuminant(
     int temp, const SpectralData &components, SpectralData &out ) const
 {
-    out.illuminant = "Daylight D" + std::to_string( temp );
+    out.illuminant = "D" + std::to_string( temp );
 
     if ( temp < 40 )
     {
@@ -86,7 +86,7 @@ void SpectralSolver::create_daylight_illuminant(
 
     size_t ind = cct <= 7000.0 ? 0 : 1;
 
-    double xd;
+    double xd  = 0.0;
     double tmp = 1.0;
     for ( size_t i = 0; i < 4; i++ )
     {
@@ -242,6 +242,7 @@ std::vector<std::vector<double>> SpectralSolver::calculate_training_RGB() const
     assert( td[0].values.size() > 0 );
 
     assert( td[0].values.size() == cd[0].values.size() );
+    assert( white_balance.size() == 3 );
 
     std::vector<std::vector<double>> result(
         td.size(), std::vector<double>( 3 ) );
@@ -259,9 +260,17 @@ std::vector<std::vector<double>> SpectralSolver::calculate_training_RGB() const
 bool SpectralSolver::calculate_IDT(
     std::vector<std::vector<double>> &out ) const
 {
-    auto                      src_points = calculate_training_RGB();
-    auto                      xyz_points = calculate_training_XYZ();
-    const std::vector<double> white_rgb  = { 1, 1, 1 };
+    auto src_points = calculate_training_RGB();
+    assert( src_points.size() > 0 );
+    assert( src_points[0].size() == 3 );
+
+    auto xyz_points = calculate_training_XYZ();
+    assert( xyz_points.size() > 0 );
+    assert( xyz_points[0].size() == 3 );
+
+    assert( src_points.size() == xyz_points.size() );
+
+    const std::vector<double> white_rgb = { 1, 1, 1 };
     return solve_IDT_LAB(
         src_points, xyz_points, white_rgb, ACES_to_XYZ, out, verbosity );
 }

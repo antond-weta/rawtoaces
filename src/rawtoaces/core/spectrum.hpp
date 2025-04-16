@@ -4,7 +4,6 @@
 
 #pragma once
 
-#include <compare>
 #include <vector>
 #include <limits>
 #include <functional>
@@ -20,12 +19,10 @@ struct Spectrum
     struct Shape
     {
         float first = 0, last = 0, step = 0;
-        bool operator==( const Shape &shape ) const
+        bool  operator==( const Shape &shape ) const
         {
-            return
-                first == shape.first &&
-                last == shape.last &&
-                step == shape.step;
+            return first == shape.first && last == shape.last &&
+                   step == shape.step;
         }
     } shape;
 
