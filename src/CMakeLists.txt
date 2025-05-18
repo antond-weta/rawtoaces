@@ -5,6 +5,7 @@ add_compile_options("$<$<CXX_COMPILER_ID:MSVC>:/utf-8>")
 
 add_subdirectory("rawtoaces/core")
 add_subdirectory("rawtoaces/util")
+add_subdirectory("rawtoaces/rawtoaces")
 
 set(INCLUDE_INSTALL_DIR ${CMAKE_INSTALL_PREFIX}/include/
     CACHE PATH "Location of header files" )
@@ -34,3 +35,4 @@ install(FILES
     ${CMAKE_CURRENT_BINARY_DIR}/rawtoacesConfigVersion.cmake
     DESTINATION lib/cmake/rawtoaces
 )
+
