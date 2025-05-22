@@ -16,6 +16,10 @@ static const std::vector<double> ACES_white_XYZ = {
     0.952646074569846, 1.0,    1.00882518435159
 };
 
+static const std::vector<double> D65_white_XYZ = {
+    0.9547, 1.0000, 1.0883
+};
+
 static const std::vector<std::vector<double>> ACES_to_XYZ = {
     { 0.952552395938186, 0.0,                9.36786316604686e-05 },
     { 0.343966449765075, 0.728166096613485, -0.0721325463785608   },

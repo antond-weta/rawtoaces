@@ -7,6 +7,8 @@
 #include <iomanip>
 #include <fstream>
 #include <algorithm>
+#include <vector>
+#include <cmath>
 
 #ifdef ENABLE_EIGEN
 #    include <Eigen/Core>
@@ -154,27 +156,25 @@ transform_mat( const std::vector<std::vector<double>> &mat )
 template <typename T>
 std::vector<std::vector<T>> transposed( const std::vector<std::vector<T>> &mat )
 {
+    check_dependencies();
+
     size_t n = mat.size();
     assert( n > 0 );
 
     size_t m = mat[0].size();
     assert( m > 0 );
 
+#ifdef ENABLE_EIGEN
     if ( use_eigen )
     {
-#ifdef ENABLE_EIGEN
         Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> mat2 =
             mat_from_std( mat );
         Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> mat3 =
             mat2.transpose();
         return mat_to_std( mat3 );
-#else  // ENABLE_EIGEN
-        std::cerr << "The library was built without Eigen support."
-                  << std::endl;
-        exit( -1 );
-#endif // ENABLE_EIGEN
     }
     else
+#endif // ENABLE_EIGEN
     {
         std::vector<std::vector<T>> result( m, std::vector<T>( n ) );
 
@@ -191,6 +191,8 @@ std::vector<std::vector<T>> product(
     const std::vector<std::vector<T>> &mat1,
     const std::vector<std::vector<T>> &mat2 )
 {
+    check_dependencies();
+
     size_t n1 = mat1.size();
     assert( n1 > 0 );
 
@@ -207,22 +209,18 @@ std::vector<std::vector<T>> product(
 
     std::vector<std::vector<T>> result( n1, std::vector<T>( m2 ) );
 
+#ifdef ENABLE_EIGEN
     if ( use_eigen )
     {
-#ifdef ENABLE_EIGEN
         Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> mat3 =
             mat_from_std( mat1 );
         Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> mat4 =
             mat_from_std( mat2 );
         Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> mat5 = mat3 * mat4;
         return mat_to_std( mat5 );
-#else  // ENABLE_EIGEN
-        std::cerr << "The library was built without Eigen support."
-                  << std::endl;
-        exit( -1 );
-#endif // ENABLE_EIGEN
     }
     else
+#endif // ENABLE_EIGEN
     {
         std::vector<std::vector<T>> result( n1, std::vector<T>( m2 ) );
 
@@ -239,6 +237,8 @@ template <typename T>
 std::vector<T>
 product( const std::vector<std::vector<T>> &mat, const std::vector<T> &vec )
 {
+    check_dependencies();
+
     size_t n1 = mat.size();
     assert( n1 > 0 );
 
@@ -250,21 +250,17 @@ product( const std::vector<std::vector<T>> &mat, const std::vector<T> &vec )
 
     assert( m1 == n2 );
 
+#ifdef ENABLE_EIGEN
     if ( use_eigen )
     {
-#ifdef ENABLE_EIGEN
         Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> mat2 =
             mat_from_std( mat );
         Eigen::Matrix<T, Eigen::Dynamic, 1> vec2 = vec_from_std( vec );
         Eigen::Matrix<T, Eigen::Dynamic, 1> vec3 = mat2 * vec2;
         return vec_to_std( vec3 );
-#else  // ENABLE_EIGEN
-        std::cerr << "The library was built without Eigen support."
-                  << std::endl;
-        exit( -1 );
-#endif // ENABLE_EIGEN
     }
     else
+#endif // ENABLE_EIGEN
     {
         std::vector<T> result( n1 );
 
@@ -280,21 +276,19 @@ template <typename T>
 bool inverse(
     const std::vector<std::vector<T>> &in, std::vector<std::vector<T>> &out )
 {
+    check_dependencies();
+
+#ifdef ENABLE_EIGEN
     if ( use_eigen )
     {
-#ifdef ENABLE_EIGEN
         Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> mat2 =
             mat_from_std( in );
         Eigen::Matrix<T, Eigen::Dynamic, Eigen::Dynamic> mat3 = mat2.inverse();
         out = mat_to_std( mat3 );
         return true;
-#else  // ENABLE_EIGEN
-        std::cerr << "The library was built without Eigen support."
-                  << std::endl;
-        exit( -1 );
-#endif // ENABLE_EIGEN
     }
     else
+#endif // ENABLE_EIGEN
     {
         assert( in.size() == 3 );
         assert( in[0].size() == 3 );
@@ -349,6 +343,8 @@ bool inverse(
 
 bool solve_linear( std::vector<std::vector<double>> &a, std::vector<double> &b )
 {
+    check_dependencies();
+
     size_t n = a.size();
     assert( n > 0 );
     assert( a[0].size() == n );
@@ -479,6 +475,8 @@ bool solve_nonlinear(
     size_t max_steps,
     size_t verbosity )
 {
+    check_dependencies();
+
     size_t step     = 0;
     double old_cost = std::numeric_limits<double>::max();
 
@@ -501,18 +499,18 @@ bool solve_nonlinear(
         auto A   = product( J_t, J );
         auto b   = product( J_t, F );
 
+#ifdef ENABLE_EIGEN
         if ( use_eigen )
         {
-#ifdef ENABLE_EIGEN
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> AA =
                 mat_from_std( A );
             Eigen::Matrix<double, Eigen::Dynamic, 1> bb = vec_from_std( b );
             Eigen::Matrix<double, Eigen::Dynamic, 1> x =
                 AA.colPivHouseholderQr().solve( bb );
             b = vec_to_std( x );
-#endif // ENABLE_EIGEN
         }
         else
+#endif // ENABLE_EIGEN
         {
             if ( !solve_linear( A, b ) )
             {
@@ -556,6 +554,8 @@ bool solve_nonlinear(
     size_t           max_steps,
     size_t           verbosity )
 {
+    check_dependencies();
+
     assert( objective != nullptr );
 
     size_t n = objective->camera_points.size();
@@ -595,18 +595,18 @@ bool solve_nonlinear(
         auto A   = product( J_t, J );
         auto b   = product( J_t, F );
 
+#ifdef ENABLE_EIGEN
         if ( use_eigen )
         {
-#ifdef ENABLE_EIGEN
             Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> AA =
                 mat_from_std( A );
             Eigen::Matrix<double, Eigen::Dynamic, 1> bb = vec_from_std( b );
             Eigen::Matrix<double, Eigen::Dynamic, 1> x =
                 AA.colPivHouseholderQr().solve( bb );
             b = vec_to_std( x );
-#endif // ENABLE_EIGEN
         }
         else
+#endif // ENABLE_EIGEN
         {
             if ( !solve_linear( A, b ) )
             {
@@ -928,6 +928,8 @@ std::vector<std::vector<double>> calculate_CAT(
     const std::vector<double> &src_white_XYZ,
     const std::vector<double> &dst_white_XYZ )
 {
+    check_dependencies();
+
     assert( src_white_XYZ.size() == 3 );
     assert( dst_white_XYZ.size() == 3 );
 

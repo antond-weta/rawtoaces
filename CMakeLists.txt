@@ -6,6 +6,7 @@ set( RTA_MINOR_VERSION 0 )
 set( RTA_PATCH_VERSION 0 )
 set( RTA_VERSION ${RTA_MAJOR_VERSION}.${RTA_MINOR_VERSION}.${RTA_PATCH_VERSION} )
 
+option( RTA_BUILD_V1 "Bild the legacy version" TRUE )
 option( RTA_ENABLE_EIGEN "Enable Eigen dependency" TRUE )
 option( RTA_ENABLE_CERES "Enable Ceres-Solver dependency" TRUE )
 
@@ -66,6 +67,7 @@ else ()
 endif ()
 
 include ( configure.cmake )
+
 
 add_subdirectory( "src" )
 add_subdirectory( "tests" )
