@@ -1275,8 +1275,8 @@ bool ImageConverter::prepareIDT_nonDNG( const OIIO::ImageSpec &imageSpec )
     cache::Vector3 src, dst;
     for ( size_t i = 0; i < 3; i++ )
     {
-        src.value[i] = d65[i];
-        dst.value[i] = d60[i];
+        src.value[i] = rta::core::D65_white_XYZ[i];
+        dst.value[i] = rta::core::ACES_white_XYZ[i];
     }
 
     cache::TransformDescriptor descriptor;

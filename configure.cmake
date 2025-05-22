@@ -1,19 +1,25 @@
-find_package ( Eigen3        CONFIG REQUIRED )
+
+if ( RTA_ENABLE_EIGEN )
+    find_package ( Eigen3 CONFIG REQUIRED )
+endif ( RTA_ENABLE_EIGEN )
+
 find_package ( OpenImageIO   CONFIG REQUIRED )
 find_package ( nlohmann_json CONFIG REQUIRED )
 
-if (RTA_CENTOS7_CERES_HACK)
-    #
-    # This is a hack to make rawtoaces build on Centos 7 on CI.
-    # ceres-solver-1.12 which is available via yum on Centos 7 comes with
-    # broken Config.cmake file. This hack works around that. It requires that
-    # ceres-solver-1.12 is already installed via yum.
-    #
+if ( RTA_ENABLE_CERES )
+    if (RTA_CENTOS7_CERES_HACK)
+        #
+        # This is a hack to make rawtoaces build on Centos 7 on CI.
+        # ceres-solver-1.12 which is available via yum on Centos 7 comes with
+        # broken Config.cmake file. This hack works around that. It requires that
+        # ceres-solver-1.12 is already installed via yum.
+        #
 
-    set (Ceres_VERSION_MAJOR 0)
-    set (CERES_INCLUDE_DIRS "/usr/include")
-    set (CERES_LIBRARIES "/usr/lib64/libceres.so")
-    set (Ceres_FOUND 1)
-else ()
-    find_package ( Ceres CONFIG REQUIRED )
-endif ()
+        set (Ceres_VERSION_MAJOR 0)
+        set (CERES_INCLUDE_DIRS "/usr/include")
+        set (CERES_LIBRARIES "/usr/lib64/libceres.so")
+        set (Ceres_FOUND 1)
+    else ()
+        find_package ( Ceres CONFIG REQUIRED )
+    endif ()
+endif ( RTA_ENABLE_CERES )
