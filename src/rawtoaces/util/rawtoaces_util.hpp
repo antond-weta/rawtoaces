@@ -86,7 +86,7 @@ public:
     float customWB[4]        = { 1.0, 1.0, 1.0, 1.0 };
     float customMatrix[3][3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 
-    bool  no_auto_bright           = false;
+    bool  auto_bright              = false;
     float adjust_maximum_threshold = 0.75;
     int   black_level              = -1;
     int   saturation_level         = -1;

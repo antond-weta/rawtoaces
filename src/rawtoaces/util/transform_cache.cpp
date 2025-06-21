@@ -172,7 +172,7 @@ bool TransformDescriptor::fetch(
             wb2.value[1] = wb1[1];
             wb2.value[2] = wb1[2];
 
-            std::pair<WB, std::string>( wb2, illuminant_type );
+            data.value = std::pair<WB, std::string>( wb2, illuminant_type );
             break;
         }
         case TransformEntryType::Mat_from_Illum: {

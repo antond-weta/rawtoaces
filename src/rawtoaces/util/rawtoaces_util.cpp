@@ -224,8 +224,8 @@ void ImageConverter::init_parser( OIIO::ArgParse &argParse )
 
     argParse.separator( "Raw conversion options:" );
 
-    argParse.arg( "--no-auto-bright" )
-        .help( "Disable automatic exposure adjustment." )
+    argParse.arg( "--auto-bright" )
+        .help( "Enable automatic exposure adjustment." )
         .action( OIIO::ArgParse::store_true() );
 
     argParse.arg( "--adjust-maximum-threshold" )
@@ -536,7 +536,7 @@ bool ImageConverter::parse_params( const OIIO::ArgParse &argParse )
         return false;
     }
 
-    no_auto_bright           = argParse["no-auto-bright"].get<int>();
+    auto_bright              = argParse["auto-bright"].get<int>();
     adjust_maximum_threshold = argParse["adjust-maximum-threshold"].get<int>();
     black_level              = argParse["black-level"].get<int>();
     saturation_level         = argParse["saturation-level"].get<int>();
@@ -558,7 +558,7 @@ bool ImageConverter::configure(
     options["raw:use_camera_wb"] = 0;
     options["raw:use_auto_wb"]   = 0;
 
-    options["raw:auto_bright"]        = no_auto_bright ? 0 : 1;
+    options["raw:auto_bright"]        = (int)auto_bright;
     options["raw:adjust_maximum_thr"] = adjust_maximum_threshold;
     options["raw:user_black"]         = black_level;
     options["raw:user_sat"]           = saturation_level;
@@ -600,13 +600,6 @@ bool ImageConverter::configure(
         }
         case WBMethod::Illuminant: {
             std::string lower_illuminant = OIIO::Strutil::lower( illuminant );
-            if ( !util::is_valid_CT( lower_illuminant ) )
-            {
-                std::cerr << "Unrecognised illuminant \'" << illuminant << "\'"
-                          << std::endl;
-                return false;
-            }
-
             break;
         }
         case WBMethod::Box:
