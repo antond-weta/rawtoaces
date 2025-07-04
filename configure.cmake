@@ -23,3 +23,9 @@ if ( RTA_ENABLE_CERES )
         find_package ( Ceres CONFIG REQUIRED )
     endif ()
 endif ( RTA_ENABLE_CERES )
+
+if ( RTA_ENABLE_LENSFUN )
+    find_package ( PkgConfig REQUIRED )
+    pkg_check_modules( lensfun REQUIRED lensfun>=0.3.4 )
+endif ( RTA_ENABLE_LENSFUN )
+

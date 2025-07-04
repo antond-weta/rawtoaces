@@ -96,6 +96,17 @@ public:
     int   cropbox[4]               = { 0, 0, 0, 0 };
     int   verbosity                = 0;
 
+#if ( RTA_ENABLE_LENSFUN )
+    bool        do_aberration = false;
+    bool        do_distortion = false;
+    bool        do_vignetting = false;
+    std::string custom_lens_make;
+    std::string custom_lens_model;
+    float       custom_aperture       = 0.0f;
+    float       custom_focal_length   = 0.0f;
+    float       custom_focus_distance = 0.0f;
+#endif // RTA_ENABLE_LENSFUN
+
     bool        disable_cache = false;
     bool        overwrite     = false;
     bool        create_dirs   = false;
@@ -152,6 +163,33 @@ public:
     ///    `true` if configured successfully.
     bool configure(
         const OIIO::ImageSpec &imageSpec, OIIO::ParamValueList &options );
+
+#if ( RTA_ENABLE_EXIFTOOL )
+    /// Fetch the metadata missing in the image buffer using ExifTool, update the image buffer with
+    /// the fetched metadata.
+    /// @param input_path
+    ///     Path to the raw image file to fetch metadata from.
+    /// @param buffer
+    ///     Image buffer to update with the fetched metadata.
+    ///     conversion.
+    /// @result
+    ///    `true` if fetched successfully.
+    bool fetch_missing_metadata(
+        const std::string &input_path, OIIO::ImageBuf &buffer );
+#endif // RTA_ENABLE_LENSFUN
+
+#if ( RTA_ENABLE_LENSFUN )
+    /// Apply the lens corrections to the mage buffer.
+    /// @param dst
+    ///     Destination image buffer.
+    /// @param src
+    ///     Source image buffer, can be the same as `dst` for in-place
+    ///     conversion.
+    /// @result
+    ///    `true` if applied successfully.
+    bool apply_lens_corrections(
+        OIIO::ImageBuf &dst, const OIIO::ImageBuf &src, OIIO::ROI roi = {} );
+#endif // RTA_ENABLE_LENSFUN
 
     /// Apply the colour space conversion matrix (or matrices) to convert the
     /// image buffer from the raw camera colour space to ACES.

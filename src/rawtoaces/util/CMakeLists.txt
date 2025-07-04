@@ -14,6 +14,20 @@ add_library ( rawtoaces_util ${DO_SHARED}
     transform_cache.hpp
 
     cache_base.hpp
+    
+    $<$<BOOL:${RTA_ENABLE_EXIFTOOL}>:
+        data_adapters/exiftool.cpp
+        data_adapters/exiftool.hpp
+    >
+    
+    $<$<BOOL:${RTA_ENABLE_LENSFUN}>:
+        lens/lens_corrections.cpp
+        lens/lens_corrections.hpp
+        lens/lens_corrections_lensfun.cpp
+        lens/lens_corrections_lensfun.hpp
+        lens/lens_corrections_cache.cpp
+        lens/lens_corrections_cache.hpp
+    >
 
     rawtoaces_util.cpp
 )
@@ -49,6 +63,20 @@ target_link_libraries ( rawtoaces_util
         rawtoaces::core
         OpenImageIO::OpenImageIO
 )
+
+if ( ${RTA_ENABLE_EXIFTOOL} )
+    target_compile_definitions(rawtoaces_util PRIVATE RTA_ENABLE_EXIFTOOL=1 )
+endif()
+
+if ( ${RTA_ENABLE_LENSFUN} )
+    target_include_directories(rawtoaces_util PUBLIC ${lensfun_INCLUDEDIR} )
+    target_compile_options ( rawtoaces_util PUBLIC ${lensfun_CFLAGS} )
+    target_link_directories(rawtoaces_util PUBLIC ${lensfun_LIBDIR} )
+    target_link_libraries(rawtoaces_util PUBLIC ${lensfun_LINK_LIBRARIES} )
+    target_link_options ( rawtoaces_util PUBLIC ${lensfun_LDFLAGS} )
+    target_compile_definitions(rawtoaces_util PRIVATE RTA_ENABLE_LENSFUN=1 )
+endif()
+
 
 target_compile_definitions( rawtoaces_util PRIVATE RTA_VERSION="${RTA_VERSION}" )
 

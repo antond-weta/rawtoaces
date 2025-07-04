@@ -43,6 +43,8 @@ jobs:
       CC: ${{matrix.cc_compiler}}
       CMAKE_CXX_STANDARD: ${{matrix.cxx_std}}
       OPENEXR_VERSION: ${{matrix.openexr_ver}}
+      RAWTOACES_EXIFTOOL_PATH: "/usr/bin/exiftool"
+
     steps:
       - name: install nodejs20glibc2.17
         run: |
@@ -62,7 +64,7 @@ jobs:
       - name: Dependencies
         shell: bash
         run: >
-            sudo yum install --setopt=tsflags=nodocs -y eigen3-devel ceres-solver-devel json-devel
+            sudo yum install --setopt=tsflags=nodocs -y eigen3-devel ceres-solver-devel json-devel lensfun-devel perl-Image-ExifTool
 
       - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -124,6 +126,7 @@ jobs:
       CXX: ${{matrix.cxx_compiler}}
       CC: ${{matrix.cc_compiler}}
       CMAKE_CXX_STANDARD: ${{matrix.cxx_std}}
+      RAWTOACES_EXIFTOOL_PATH: "/usr/bin/exiftool"
 
     steps:
       - uses: actions/checkout@v4
@@ -138,7 +141,7 @@ jobs:
       - name: Dependencies
         shell: bash
         run: >
-            sudo yum install --setopt=tsflags=nodocs -y eigen3-devel ceres-solver-devel json-devel
+            sudo yum install --setopt=tsflags=nodocs -y eigen3-devel ceres-solver-devel json-devel lensfun-devel perl-Image-ExifTool
 
       - name: Configure CMake
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -175,21 +178,25 @@ jobs:
             install_deps: install_deps_windows
             toolchain_file: "C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
             build_shared_libs: OFF
+            exiftool_path: "TODO"
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
             install_deps: install_deps_linux
             build_shared_libs: ON
+            exiftool_path: "/usr/bin/exiftool"
           - os: ubuntu-latest
             c_compiler: clang
             cpp_compiler: clang++
             install_deps: install_deps_linux
             build_shared_libs: ON
+            exiftool_path: "/usr/bin/exiftool"
           - os: macos-latest
             c_compiler: clang
             cpp_compiler: clang++
             install_deps: install_deps_mac
             build_shared_libs: ON
+            exiftool_path: "/opt/homebrew/bin/exiftool"
         exclude:
           - os: windows-latest
             c_compiler: gcc
@@ -201,7 +208,10 @@ jobs:
             c_compiler: cl
           - os: macos-latest
             c_compiler: gcc
-      
+    
+    env:
+      RAWTOACES_EXIFTOOL_PATH: ${{matrix.exiftool_path}}
+    
     steps:
     - uses: actions/checkout@v4
 
@@ -227,6 +237,8 @@ jobs:
         -DCXX_STANDARD=C++20
         -DCMAKE_TOOLCHAIN_FILE="${{ matrix.toolchain_file }}"
         -DENABLE_SHARED="${{ matrix.build_shared_libs }}"
+        -D RTA_ENABLE_EXIFTOOL=1
+        -D RTA_ENABLE_LENSFUN=1
         
     - name: Build
       # Build your program with the given configuration. Note that --config is needed because the default Windows generator is a multi-config generator (Visual Studio generator).

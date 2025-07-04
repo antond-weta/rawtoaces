@@ -10,6 +10,9 @@ option( RTA_BUILD_V1 "Bild the legacy version" TRUE )
 option( RTA_ENABLE_EIGEN "Enable Eigen dependency" TRUE )
 option( RTA_ENABLE_CERES "Enable Ceres-Solver dependency" TRUE )
 
+option( RTA_ENABLE_EXIFTOOL "Enable exiftool dependency" FALSE)
+option( RTA_ENABLE_LENSFUN "Enable lensfun dependency" FALSE)
+
 #set( CMAKE_MACOSX_RPATH 1 )
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")

@@ -18,6 +18,9 @@ target_link_libraries ( rawtoaces
         rawtoaces::util
 )
 
+if ( ${RTA_ENABLE_LENSFUN} )
+    target_compile_definitions(rawtoaces PRIVATE RTA_ENABLE_LENSFUN=1 )
+endif()
 
 set_target_properties(rawtoaces PROPERTIES XCODE_SCHEME_ARGUMENTS "${CMAKE_XCODE_SCHEME_ARGUMENTS}" )
 

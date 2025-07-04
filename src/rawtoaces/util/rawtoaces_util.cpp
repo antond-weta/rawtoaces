@@ -10,6 +10,14 @@
 #include "transform_cache.hpp"
 #include "data_adapters/spectral_loader.hpp"
 
+#if ( RTA_ENABLE_EXIFTOOL )
+#    include "data_adapters/exiftool.hpp"
+#endif // RTA_ENABLE_EXIFTOOL
+
+#ifdef RTA_ENABLE_LENSFUN
+#    include "lens/lens_corrections_cache.hpp"
+#endif // RTA_ENABLE_LENSFUN
+
 #include <OpenImageIO/imageio.h>
 #include <OpenImageIO/imagebuf.h>
 #include <OpenImageIO/imagebufalgo.h>
@@ -22,6 +30,10 @@ namespace util
 {
 
 cache::TransformCache transform_cache;
+
+#ifdef RTA_ENABLE_LENSFUN
+lens::LensCorrectionsCache lens_corrections_cache;
+#endif // RTA_ENABLE_LENSFUN
 
 const char *HelpString =
     "Rawtoaces converts raw image files from a digital camera to "
@@ -301,6 +313,56 @@ void ImageConverter::init_parser( OIIO::ArgParse &argParse )
         .defaultval( 0 )
         .action( OIIO::ArgParse::store<int>() );
 
+#if ( RTA_ENABLE_LENSFUN )
+
+    argParse.separator( "Lens correction:" );
+
+    argParse.arg( "--lens-corrections" )
+        .help(
+            "Lens corections to be applied to the images. Specify a string "
+            "containg the following symbols in any order: 'c' - chromatic "
+            "abberation, 'd' - distortion, 'v' - vignetting; "
+            "or 'a' - enable all." )
+        .metavar( "STR" )
+        .action( OIIO::ArgParse::store() );
+
+    argParse.arg( "--custom-lens-make" )
+        .help(
+            "Lens manufacturer name to be used for lens corrections. "
+            "If present, overrides the value stored in the file metadata." )
+        .metavar( "STR" )
+        .action( OIIO::ArgParse::store() );
+
+    argParse.arg( "--custom-lens-model" )
+        .help(
+            "Lens model name to be used for lens corrections. "
+            "If present, overrides the value stored in the file metadata." )
+        .metavar( "STR" )
+        .action( OIIO::ArgParse::store() );
+
+    argParse.arg( "--custom-aperture" )
+        .help(
+            "Lens aperture (F-number) to be used for lens corrections "
+            "If present, overrides the value stored in the file metadata." )
+        .metavar( "VAL" )
+        .action( OIIO::ArgParse::store<float>() );
+
+    argParse.arg( "--custom-focal-length" )
+        .help(
+            "Lens focal length (in mm) to be used for lens corrections "
+            "If present, overrides the value stored in the file metadata." )
+        .metavar( "VAL" )
+        .action( OIIO::ArgParse::store<float>() );
+
+    argParse.arg( "--custom-focus-distance" )
+        .help(
+            "Lens focus distance to be used for lens corrections "
+            "If present, overrides the value stored in the file metadata." )
+        .metavar( "VAL" )
+        .action( OIIO::ArgParse::store<float>() );
+
+#endif // RTA_ENABLE_LENSFUN
+
     argParse.separator( "Benchmarking and debugging:" );
 
     argParse.arg( "--list-cameras" )
@@ -535,6 +597,34 @@ bool ImageConverter::parse_params( const OIIO::ArgParse &argParse )
 
         return false;
     }
+
+#if ( RTA_ENABLE_LENSFUN )
+    std::string lens_corrections = argParse["lens-corrections"].get();
+    custom_lens_make             = argParse["custom-lens-make"].get();
+    custom_lens_model            = argParse["custom-lens-model"].get();
+    custom_aperture              = argParse["custom-aperture"].get<float>();
+    custom_focal_length          = argParse["custom-focal-length"].get<float>();
+    custom_focus_distance = argParse["custom-focus-distance"].get<float>();
+
+    for ( const char &c: lens_corrections )
+    {
+        switch ( c )
+        {
+            case 'c': do_aberration = true; break;
+            case 'd': do_distortion = true; break;
+            case 'v': do_vignetting = true; break;
+            case 'a':
+                do_aberration = true;
+                do_distortion = true;
+                do_vignetting = true;
+                break;
+            default:
+                std::cerr << "Unknown lens correction mode '" << c << "'."
+                          << std::endl;
+                return false;
+        }
+    }
+#endif // RTA_ENABLE_LENSFUN
 
     auto_bright              = argParse["auto-bright"].get<int>();
     adjust_maximum_threshold = argParse["adjust-maximum-threshold"].get<int>();
@@ -841,6 +931,291 @@ bool ImageConverter::applyMatrix(
     return OIIO::ImageBufAlgo::colormatrixtransform( dst, src, M, false, roi );
 }
 
+#if ( RTA_ENABLE_EXIFTOOL )
+bool ImageConverter::fetch_missing_metadata(
+    const std::string &input_path, OIIO::ImageBuf &buffer )
+{
+    // Normalise the metadata in the cases where the OIIO attribute name
+    // doesn't match the standard OpenEXR and/or ACES Container attribute name.
+    // We only check the attribute names which are set by the raw input plugin.
+    const std::map<std::string, std::string> standard_mapping = {
+        { "Make", "cameraMake" },
+        { "Model", "cameraModel" },
+        { "FNumber", "aperture" }
+    };
+
+    OIIO::ImageSpec &spec = buffer.specmod();
+    for ( auto i: standard_mapping )
+    {
+        auto &src_name = i.first;
+        auto &dst_name = i.second;
+
+        auto src_attribute = spec.find_attribute( src_name );
+        auto dst_attribute = spec.find_attribute( dst_name );
+
+        if ( dst_attribute == nullptr && src_attribute != nullptr )
+        {
+            auto type = src_attribute->type();
+            if ( type.arraylen == 0 )
+            {
+                if ( type.basetype == OIIO::TypeDesc::STRING )
+                    spec[dst_name] = src_attribute->get_string();
+                else if ( type.basetype == OIIO::TypeDesc::FLOAT )
+                    spec[dst_name] = src_attribute->get_float();
+            }
+            spec.erase_attribute( src_name );
+        }
+    }
+
+    // We always need at least these two.
+    std::vector<std::string> keys_to_check = { "cameraMake", "cameraModel" };
+
+#    if ( RTA_ENABLE_LENSFUN )
+    if ( do_aberration || do_distortion || do_vignetting )
+    {
+        //        keys_to_check.push_back("lensMake");
+        keys_to_check.push_back( "lensModel" );
+        keys_to_check.push_back( "focalLength" );
+
+        if ( do_vignetting )
+        {
+            keys_to_check.push_back( "aperture" );
+            //            keys_to_check.push_back("focus");
+        }
+    }
+#    endif // RTA_ENABLE_LENSFUN
+
+    std::vector<std::string> keys_to_fetch;
+
+    for ( auto &key: keys_to_check )
+    {
+        auto attribute = spec.find_attribute( key );
+        if ( attribute == nullptr )
+        {
+            keys_to_fetch.push_back( key );
+            continue;
+        }
+    }
+
+    return exiftool::fetch_metadata( spec, input_path, keys_to_fetch );
+}
+#endif // RTA_ENABLE_LENSFUN
+
+#if ( RTA_ENABLE_LENSFUN )
+bool ImageConverter::apply_lens_corrections(
+    OIIO::ImageBuf &dst, const OIIO::ImageBuf &src, OIIO::ROI roi )
+{
+    int nthreads = 0;
+
+    if ( do_aberration || do_distortion || do_vignetting )
+    {
+        lens_corrections_cache.verbosity = verbosity;
+
+        std::string camera_make    = src.spec()["cameraMake"];
+        std::string camera_model   = src.spec()["cameraModel"];
+        float       aperture       = custom_aperture;
+        float       focus_distance = custom_focus_distance;
+
+        std::string lens_make = custom_lens_make;
+        if ( lens_make.empty() )
+            lens_make = src.spec()["lensMake"];
+
+        std::string lens_model = custom_lens_model;
+        if ( lens_model.empty() )
+            lens_model = src.spec()["lensModel"];
+        if ( lens_model.empty() )
+        {
+            std::cerr << "Failed to find the lens model in the file metadata. "
+                      << "You can provide a lens model using the "
+                      << "--custom-lens-model parameter" << std::endl;
+            return false;
+        }
+
+        float focal_length = custom_focal_length;
+        if ( focal_length == 0.0f )
+            focal_length = src.spec().get_float_attribute( "focalLength" );
+        if ( focal_length == 0.0f )
+        {
+            std::cerr << "Failed to find the lens focal length in the file "
+                      << "metadata. You can provide focal length using the "
+                      << "--custom-focal-length parameter" << std::endl;
+            return false;
+        }
+
+        if ( do_vignetting )
+        {
+            if ( aperture == 0.0f )
+                aperture = src.spec().get_float_attribute( "aperture" );
+            if ( aperture == 0.0f )
+            {
+                std::cerr << "Failed to find the lens aperture in the file "
+                          << "metadata. You can provide a lens model using the "
+                          << "--custom-aperture parameter" << std::endl;
+                return false;
+            }
+
+            if ( focus_distance == 0.0f )
+                focus_distance = src.spec().get_float_attribute( "focus" );
+        }
+
+        OIIO::ParamValueList options;
+        options["CameraMake"]    = camera_make;
+        options["CameraModel"]   = camera_model;
+        options["LensModel"]     = lens_model;
+        options["Aperture"]      = aperture;
+        options["FocalLength"]   = focal_length;
+        options["FocusDistance"] = focus_distance;
+
+        if ( do_vignetting )
+        {
+            OIIO::ImageSpec spec = src.spec();
+            spec.nchannels       = 1;
+
+            lens::LensCorrectionsDescriptor descriptor;
+            descriptor.type     = lens::LensCorrectionsCacheEntryType::Vignette;
+            descriptor.spec     = spec;
+            descriptor.options  = options;
+            descriptor.nthreads = nthreads;
+
+            const OIIO::ImageBuf &vignette_map =
+                lens_corrections_cache.fetch( descriptor );
+            bool success = vignette_map.initialized();
+
+            if ( !success )
+            {
+                std::cerr << "Failed to create the vignette map. "
+                          << "Skipping this image." << std::endl;
+                return false;
+            }
+
+            // Only scale the colour channels.
+            // The clipping map should not be scaled.
+            OIIO::ROI roi = dst.roi();
+#    if OIIO_VERSION < OIIO_MAKE_VERSION( 2, 5, 0 )
+            for ( int c = 0; c < 3; c++ )
+            {
+                roi.chbegin = c;
+                roi.chend   = c + 1;
+                OIIO::ImageBufAlgo::mul(
+                    dst, dst, vignette_map, roi, nthreads );
+            }
+#    else
+            roi.chbegin = 0;
+            roi.chend   = 3;
+            OIIO::ImageBufAlgo::scale(
+                dst, dst, vignette_map, {}, roi, nthreads );
+#    endif
+        }
+
+        if ( do_aberration )
+        {
+            OIIO::ImageSpec spec = dst.spec();
+            spec.nchannels       = 6;
+            spec.channelnames.assign( { "red.S",
+                                        "red.T",
+                                        "green.S",
+                                        "green.T",
+                                        "blue.S",
+                                        "blue.T" } );
+
+            lens::LensCorrectionsDescriptor descriptor;
+            descriptor.type = lens::LensCorrectionsCacheEntryType::Aberration;
+            descriptor.spec = spec;
+            descriptor.options  = options;
+            descriptor.nthreads = nthreads;
+
+            const OIIO::ImageBuf &aberration_map =
+                lens_corrections_cache.fetch( descriptor );
+
+            bool success = aberration_map.initialized();
+
+            if ( !success )
+            {
+                std::cerr << "Failed to create the chromatic aberration map. "
+                          << "Skipping this image." << std::endl;
+                return false;
+            }
+
+            spec = dst.spec();
+            OIIO::ImageBuf buffer2( spec );
+
+            OIIO::ROI roi = spec.roi();
+
+            OIIO::Filter2D *filter =
+                nullptr; //OIIO::Filter2D::create("box", 1, 1);
+
+            // Undistort all 6 channels of the image
+
+            int nchannels = 3; //global_settings.write_clipping_maps ? 6 : 3;
+
+            for ( int i = 0; i < nchannels; i++ )
+            {
+                int s_chan  = ( i * 2 ) % 6;
+                roi.chbegin = i;
+                roi.chend   = i + 1;
+                OIIO::ImageBufAlgo::st_warp(
+                    buffer2,
+                    dst,
+                    aberration_map,
+                    filter,
+                    s_chan,
+                    s_chan + 1,
+                    false,
+                    false,
+                    roi,
+                    nthreads );
+            }
+
+            dst = buffer2;
+        }
+
+        if ( do_distortion )
+        {
+            OIIO::ImageSpec spec = dst.spec();
+            spec.nchannels       = 2;
+            spec.channelnames.assign( { "S", "T" } );
+
+            lens::LensCorrectionsDescriptor descriptor;
+            descriptor.type = lens::LensCorrectionsCacheEntryType::Distortion;
+            descriptor.spec = spec;
+            descriptor.options  = options;
+            descriptor.nthreads = nthreads;
+
+            const OIIO::ImageBuf &distortion_map =
+                lens_corrections_cache.fetch( descriptor );
+
+            bool success = distortion_map.initialized();
+
+            if ( !success )
+            {
+                std::cerr << "Failed to create the distortion map. "
+                          << "Skipping this image." << std::endl;
+                return false;
+            }
+
+            spec = dst.spec();
+            OIIO::ImageBuf buffer2( spec );
+
+            OIIO::ImageBufAlgo::st_warp(
+                buffer2,
+                dst,
+                distortion_map,
+                nullptr,
+                0,
+                1,
+                false,
+                false,
+                {},
+                nthreads );
+
+            dst = buffer2;
+        }
+    }
+
+    return true;
+}
+#endif // RTA_ENABLE_LENSFUN
+
 bool ImageConverter::apply_matrix(
     OIIO::ImageBuf &dst, const OIIO::ImageBuf &src, OIIO::ROI roi )
 {
@@ -1027,6 +1402,24 @@ bool ImageConverter::process_image( const std::string &input_filename )
         std::cerr << "Failed to read the file: " << input_filename << std::endl;
         return ( false );
     }
+
+#if ( RTA_ENABLE_EXIFTOOL )
+    if ( !fetch_missing_metadata( input_filename, buffer ) )
+    {
+        std::cerr << "Failed to fetch missing metadata for the file: "
+                  << input_filename << std::endl;
+        return ( false );
+    }
+#endif // RTA_ENABLE_LENSFUN
+
+#if ( RTA_ENABLE_LENSFUN )
+    if ( !apply_lens_corrections( buffer, buffer ) )
+    {
+        std::cerr << "Failed to apply lens corrections to the file: "
+                  << input_filename << std::endl;
+        return ( false );
+    }
+#endif // RTA_ENABLE_LENSFUN
 
     if ( !apply_matrix( buffer, buffer ) )
     {
