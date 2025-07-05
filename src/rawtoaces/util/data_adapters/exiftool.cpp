@@ -48,7 +48,7 @@ std::string find_binary(const std::string & name)
         p /= name;
         
         if (std::filesystem::exists(p))
-            return p;
+            return p.string();
     }
 
     return "";

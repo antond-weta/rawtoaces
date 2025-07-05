@@ -183,7 +183,7 @@ jobs:
             install_deps: install_deps_windows
             toolchain_file: "C:/vcpkg/scripts/buildsystems/vcpkg.cmake"
             build_shared_libs: OFF
-            exiftool_path: "TODO"
+            exiftool_path: "D:/a/rawtoaces/rawtoaces/exiftool-13.32_64/exiftool"
           - os: ubuntu-latest
             c_compiler: gcc
             cpp_compiler: g++
