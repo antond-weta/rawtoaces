@@ -1091,7 +1091,7 @@ bool ImageConverter::apply_lens_corrections(
             // Only scale the colour channels.
             // The clipping map should not be scaled.
             OIIO::ROI roi = dst.roi();
-#    if OIIO_VERSION < OIIO_MAKE_VERSION( 2, 5, 0 )
+#    if OIIO_VERSION < OIIO_MAKE_VERSION( 3, 1, 0 )
             for ( int c = 0; c < 3; c++ )
             {
                 roi.chbegin = c;
