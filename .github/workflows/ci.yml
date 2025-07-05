@@ -70,7 +70,10 @@ jobs:
         # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
         # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
         run: >
-            cmake -B build -S . -DRTA_CENTOS7_CERES_HACK=ON
+            cmake -B build -S . 
+            -D RTA_CENTOS7_CERES_HACK=ON
+            -D RTA_ENABLE_EXIFTOOL=1
+            -D RTA_ENABLE_LENSFUN=1
 
       - name: Build
         run: sudo cmake --build build
@@ -148,6 +151,8 @@ jobs:
         # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
         run: >
             cmake -B build -S .
+            -D RTA_ENABLE_EXIFTOOL=1
+            -D RTA_ENABLE_LENSFUN=1
 
       - name: Build
         run: sudo cmake --build build
