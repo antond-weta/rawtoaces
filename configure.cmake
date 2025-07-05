@@ -26,6 +26,6 @@ endif ( RTA_ENABLE_CERES )
 
 if ( RTA_ENABLE_LENSFUN )
     find_package ( PkgConfig REQUIRED )
-    pkg_check_modules( lensfun REQUIRED lensfun>=0.3.4 )
+    pkg_check_modules( lensfun REQUIRED lensfun>=0.3.2 )
 endif ( RTA_ENABLE_LENSFUN )
 
