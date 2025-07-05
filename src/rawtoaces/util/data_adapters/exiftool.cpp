@@ -62,7 +62,7 @@ void execute(const std::string & command, std::stringstream & stream)
 //    std::stringstream stream;
 
 #if defined( WIN32 ) || defined( WIN64 )
-    FILE *stream = _popen( command.c_str(), "r" );
+    FILE *file = _popen( command.c_str(), "r" );
 #else
     FILE *file = popen( command.c_str(), "r" );
 #endif
@@ -71,7 +71,7 @@ void execute(const std::string & command, std::stringstream & stream)
         stream << buffer1;
 
 #if defined( WIN32 ) || defined( WIN64 )
-    _pclose( stream );
+    _pclose( file );
 #else
     pclose( file );
 #endif
