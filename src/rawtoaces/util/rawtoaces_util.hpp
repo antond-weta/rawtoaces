@@ -86,6 +86,9 @@ public:
     float customWB[4]        = { 1.0, 1.0, 1.0, 1.0 };
     float customMatrix[3][3] = { { 1, 0, 0 }, { 0, 1, 0 }, { 0, 0, 1 } };
 
+    std::string custom_camera_make;
+    std::string custom_camera_model;
+
     bool  auto_bright              = false;
     float adjust_maximum_threshold = 0.75;
     int   black_level              = -1;
@@ -209,6 +212,11 @@ public:
     bool process_image( const std::string &input_filename );
 
 private:
+    bool fetch_camera_make_and_model(
+        const OIIO::ImageSpec &spec,
+        std::string           &camera_make,
+        std::string           &camera_model );
+
     bool prepareIDT_DNG( const OIIO::ImageSpec &imageSpec );
     bool prepareIDT_nonDNG( const OIIO::ImageSpec &imageSpec );
     bool prepareIDT_spectral(

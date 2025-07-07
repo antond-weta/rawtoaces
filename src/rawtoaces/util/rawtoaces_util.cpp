@@ -192,6 +192,22 @@ void ImageConverter::init_parser( OIIO::ArgParse &argParse )
         .metavar( "Rr Rg Rb Gr Gg Gb Br Bg Bb" )
         .action( OIIO::ArgParse::store<float>() );
 
+    argParse.arg( "--custom-camera-make" )
+        .help(
+            "Camera manufacturer name to be used for spectral sensitivity "
+            "curves lookup. "
+            "If present, overrides the value stored in the file metadata." )
+        .metavar( "STR" )
+        .action( OIIO::ArgParse::store() );
+
+    argParse.arg( "--custom-camera-model" )
+        .help(
+            "Camera model name to be used for spectral sensitivity "
+            "curves lookup. "
+            "If present, overrides the value stored in the file metadata." )
+        .metavar( "STR" )
+        .action( OIIO::ArgParse::store() );
+
     argParse.arg( "--headroom" )
         .help( "Highlight headroom factor." )
         .metavar( "VAL" )
@@ -536,6 +552,9 @@ bool ImageConverter::parse_params( const OIIO::ArgParse &argParse )
         return false;
     }
 
+    custom_camera_make  = argParse["custom-camera-make"].get();
+    custom_camera_model = argParse["custom-camera-model"].get();
+
     auto_bright              = argParse["auto-bright"].get<int>();
     adjust_maximum_threshold = argParse["adjust-maximum-threshold"].get<int>();
     black_level              = argParse["black-level"].get<int>();
@@ -555,11 +574,10 @@ bool ImageConverter::parse_params( const OIIO::ArgParse &argParse )
 /// Normalise the metadata in the cases where the OIIO attribute name
 /// doesn't match the standard OpenEXR and/or ACES Container attribute name.
 /// We only check the attribute names which are set by the raw input plugin.
-void fix_metadata(OIIO::ImageSpec &spec)
+void fix_metadata( OIIO::ImageSpec &spec )
 {
     const std::map<std::string, std::string> standard_mapping = {
-        { "Make", "cameraMake" },
-        { "Model", "cameraModel" }
+        { "Make", "cameraMake" }, { "Model", "cameraModel" }
     };
 
     for ( auto i: standard_mapping )
@@ -800,7 +818,7 @@ bool ImageConverter::configure(
         return false;
     }
 
-    fix_metadata(imageSpec);
+    fix_metadata( imageSpec );
     return configure( imageSpec, options );
 }
 
@@ -1059,6 +1077,36 @@ bool ImageConverter::process_image( const std::string &input_filename )
     return ( true );
 }
 
+bool ImageConverter::fetch_camera_make_and_model(
+    const OIIO::ImageSpec &spec,
+    std::string           &camera_make,
+    std::string           &camera_model )
+{
+    camera_make = custom_camera_make;
+    if ( camera_make.empty() )
+        camera_make = spec["cameraMake"];
+    if ( camera_make.empty() )
+    {
+        std::cerr << "Missing the camera manufacturer name in the file "
+                  << "metadata. You can provide a camera make using the "
+                  << "--custom-camera-make parameter" << std::endl;
+        return false;
+    }
+
+    camera_model = custom_camera_model;
+    if ( camera_model.empty() )
+        camera_model = spec["cameraModel"];
+    if ( camera_model.empty() )
+    {
+        std::cerr << "Missing the camera model name in the file metadata. "
+                  << "You can provide a camera make using the "
+                  << "--custom-camera-make parameter" << std::endl;
+        return false;
+    }
+
+    return true;
+}
+
 bool ImageConverter::prepareIDT_spectral(
     const OIIO::ImageSpec &imageSpec,
     bool                   calc_white_balance,
@@ -1067,22 +1115,10 @@ bool ImageConverter::prepareIDT_spectral(
     std::string lower_illuminant = OIIO::Strutil::lower( illuminant );
     if ( lower_illuminant.empty() )
         lower_illuminant = "na";
-    
-    std::string camera_make = imageSpec["cameraMake"];
-    if (camera_make.empty())
-    {
-        std::cerr << "Missing the camera manufacturer name in the file "
-                  << "metadata." << std::endl;
-        return false;
-    }
 
-    std::string camera_model = imageSpec["cameraModel"];
-    if (camera_model.empty())
-    {
-        std::cerr << "Missing the camera model name in the file metadata."
-        << std::endl;
+    std::string camera_make, camera_model;
+    if ( !fetch_camera_make_and_model( imageSpec, camera_make, camera_model ) )
         return false;
-    }
 
     cache::TransformDescriptor descriptor;
     descriptor.camera_make  = camera_make;
@@ -1218,21 +1254,9 @@ bool fetch_matrix(
 
 bool ImageConverter::prepareIDT_DNG( const OIIO::ImageSpec &imageSpec )
 {
-    std::string camera_make = imageSpec["cameraMake"];
-    if (camera_make.empty())
-    {
-        std::cerr << "Missing the camera manufacturer name in the file "
-                  << "metadata." << std::endl;
+    std::string camera_make, camera_model;
+    if ( !fetch_camera_make_and_model( imageSpec, camera_make, camera_model ) )
         return false;
-    }
-
-    std::string camera_model = imageSpec["cameraModel"];
-    if (camera_model.empty())
-    {
-        std::cerr << "Missing the camera model name in the file metadata."
-        << std::endl;
-        return false;
-    }
 
     cache::TransformDescriptor descriptor;
     descriptor.type          = cache::TransformEntryType::Mat_from_DNG;
@@ -1290,22 +1314,10 @@ bool ImageConverter::prepareIDT_DNG( const OIIO::ImageSpec &imageSpec )
 
 bool ImageConverter::prepareIDT_nonDNG( const OIIO::ImageSpec &imageSpec )
 {
-    std::string camera_make = imageSpec["cameraMake"];
-    if (camera_make.empty())
-    {
-        std::cerr << "Missing the camera manufacturer name in the file "
-                  << "metadata." << std::endl;
+    std::string camera_make, camera_model;
+    if ( !fetch_camera_make_and_model( imageSpec, camera_make, camera_model ) )
         return false;
-    }
 
-    std::string camera_model = imageSpec["cameraModel"];
-    if (camera_model.empty())
-    {
-        std::cerr << "Missing the camera model name in the file metadata."
-        << std::endl;
-        return false;
-    }
-    
     if ( _read_raw )
     {
         auto   mat  = imageSpec.find_attribute( "raw:cam_xyz" );
