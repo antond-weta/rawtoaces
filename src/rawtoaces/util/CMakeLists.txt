@@ -15,6 +15,11 @@ add_library ( rawtoaces_util ${DO_SHARED}
 
     cache_base.hpp
 
+    $<$<BOOL:${RTA_ENABLE_EXIFTOOL}>:
+        data_adapters/exiftool.cpp
+        data_adapters/exiftool.hpp
+    >
+
     rawtoaces_util.cpp
 )
 
@@ -51,6 +56,10 @@ target_link_libraries ( rawtoaces_util
 )
 
 target_compile_definitions( rawtoaces_util PRIVATE RTA_VERSION="${RTA_VERSION}" )
+
+if ( ${RTA_ENABLE_EXIFTOOL} )
+    target_compile_definitions(rawtoaces_util PRIVATE RTA_ENABLE_EXIFTOOL=1 )
+endif()
 
 install( TARGETS rawtoaces_util
     EXPORT rawtoacesTargets

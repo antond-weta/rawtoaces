@@ -89,6 +89,10 @@ public:
     std::string custom_camera_make;
     std::string custom_camera_model;
 
+#ifdef RTA_ENABLE_EXIFTOOL
+    bool no_exiftool = false;
+#endif // RTA_ENABLE_EXIFTOOL
+
     bool  auto_bright              = false;
     float adjust_maximum_threshold = 0.75;
     int   black_level              = -1;
@@ -155,6 +159,20 @@ public:
     ///    `true` if configured successfully.
     bool configure(
         const OIIO::ImageSpec &imageSpec, OIIO::ParamValueList &options );
+
+#ifdef RTA_ENABLE_EXIFTOOL
+    /// Fetch the metadata missing in the image buffer using ExifTool, update the image buffer with
+    /// the fetched metadata.
+    /// @param input_path
+    ///     Path to the raw image file to fetch metadata from.
+    /// @param spec
+    ///     Image spec to update with the fetched metadata.
+    ///     conversion.
+    /// @result
+    ///    `true` if fetched successfully.
+    bool fetch_missing_metadata(
+        const std::string &input_path, OIIO::ImageSpec &spec );
+#endif // RTA_ENABLE_EXIFTOOL
 
     /// Apply the colour space conversion matrix (or matrices) to convert the
     /// image buffer from the raw camera colour space to ACES.

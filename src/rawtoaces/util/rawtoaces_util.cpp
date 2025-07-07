@@ -14,6 +14,10 @@
 #include <OpenImageIO/imagebuf.h>
 #include <OpenImageIO/imagebufalgo.h>
 
+#ifdef RTA_ENABLE_EXIFTOOL
+#    include "data_adapters/exiftool.hpp"
+#endif // RTA_ENABLE_EXIFTOOL
+
 #include <filesystem>
 
 namespace rta
@@ -327,6 +331,12 @@ void ImageConverter::init_parser( OIIO::ArgParse &argParse )
         .help( "Shows the list of illuminants supported in spectral mode." )
         .action( OIIO::ArgParse::store_true() );
 
+#ifdef RTA_ENABLE_EXIFTOOL
+    argParse.arg( "--no-exiftool" )
+        .help( "Disable using exiftool to fetch the missing metadata." )
+        .action( OIIO::ArgParse::store_true() );
+#endif // RTA_ENABLE_EXIFTOOL
+
     argParse.arg( "--verbose" )
         .help(
             "(-v) Print progress messages. "
@@ -567,6 +577,10 @@ bool ImageConverter::parse_params( const OIIO::ArgParse &argParse )
     overwrite     = argParse["overwrite"].get<int>();
     create_dirs   = argParse["create-dirs"].get<int>();
     output_dir    = argParse["output-dir"].get();
+
+#ifdef RTA_ENABLE_EXIFTOOL
+    no_exiftool = argParse["no-exiftool"].get<int>();
+#endif // RTA_ENABLE_EXIFTOOL
 
     return true;
 }
@@ -887,6 +901,58 @@ bool ImageConverter::apply_matrix(
 
     return success;
 }
+
+#ifdef RTA_ENABLE_EXIFTOOL
+bool ImageConverter::fetch_missing_metadata(
+    const std::string &input_path, OIIO::ImageSpec &spec )
+{
+    // Normalise the metadata in the cases where the OIIO attribute name
+    // doesn't match the standard OpenEXR and/or ACES Container attribute name.
+    // We only check the attribute names which are set by the raw input plugin.
+    const std::map<std::string, std::string> standard_mapping = {
+        { "Make", "cameraMake" }, { "Model", "cameraModel" }
+    };
+
+    for ( auto i: standard_mapping )
+    {
+        auto &src_name = i.first;
+        auto &dst_name = i.second;
+
+        auto src_attribute = spec.find_attribute( src_name );
+        auto dst_attribute = spec.find_attribute( dst_name );
+
+        if ( dst_attribute == nullptr && src_attribute != nullptr )
+        {
+            auto type = src_attribute->type();
+            if ( type.arraylen == 0 )
+            {
+                if ( type.basetype == OIIO::TypeDesc::STRING )
+                    spec[dst_name] = src_attribute->get_string();
+                else if ( type.basetype == OIIO::TypeDesc::FLOAT )
+                    spec[dst_name] = src_attribute->get_float();
+            }
+            spec.erase_attribute( src_name );
+        }
+    }
+
+    // We always need at least these two.
+    std::vector<std::string> keys_to_check = { "cameraMake", "cameraModel" };
+
+    std::vector<std::string> keys_to_fetch;
+
+    for ( auto &key: keys_to_check )
+    {
+        auto attribute = spec.find_attribute( key );
+        if ( attribute == nullptr )
+        {
+            keys_to_fetch.push_back( key );
+            continue;
+        }
+    }
+
+    return exiftool::fetch_metadata( spec, input_path, keys_to_fetch );
+}
+#endif // RTA_ENABLE_EXIFTOOL
 
 bool ImageConverter::apply_scale(
     OIIO::ImageBuf &dst, const OIIO::ImageBuf &src, OIIO::ROI roi )

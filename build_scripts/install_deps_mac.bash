@@ -2,4 +2,4 @@
 
 set -ex
 
-brew install ceres-solver openimageio nlohmann-json
+brew install ceres-solver openimageio nlohmann-json exiftool

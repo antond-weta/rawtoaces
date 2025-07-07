@@ -75,3 +75,29 @@ target_link_libraries(
 
 set_property(TARGET test_util_spectral PROPERTY CXX_STANDARD 20)
 add_test ( NAME test_util_spectral COMMAND test_util_spectral )
+
+################################################################################
+
+
+
+if (${RTA_ENABLE_EXIFTOOL})
+
+add_executable( test_util_exiftool
+    util_exiftool.cpp
+)
+
+if (CMAKE_GENERATOR STREQUAL "Xcode")
+    target_compile_definitions(test_util_exiftool PUBLIC RTA_XCODE)
+endif (CMAKE_GENERATOR STREQUAL "Xcode")
+
+target_link_libraries(
+    test_util_exiftool
+    PUBLIC
+        rawtoaces::util
+        OpenImageIO::OpenImageIO
+)
+
+set_property(TARGET test_util_exiftool PROPERTY CXX_STANDARD 20)
+add_test ( NAME test_util_exiftool COMMAND test_util_exiftool )
+
+endif (${RTA_ENABLE_EXIFTOOL})
