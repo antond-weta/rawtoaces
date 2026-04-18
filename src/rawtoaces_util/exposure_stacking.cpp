@@ -86,7 +86,7 @@ bool ExposureStacking::process(
                         // their exposure, e.g. the samples having lower
                         // exposure (and higher noise) would have lower weight.
                         accum.value += value - black_level;
-                        accum.weight += 1.0 / scale;
+                        accum.weight += 1.0f / scale;
                         accum.clipping += 0.0;
                         accum.count++;
                     }

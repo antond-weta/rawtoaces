@@ -2870,7 +2870,7 @@ bool ImageConverter::process_stack(
         float black_level  = spec.get_float_attribute( "raw:BlackLevel" );
         int   bits_per_sample = spec.get_int_attribute( "raw:BitsPerSample" );
 
-        float max_value      = ( 1 << bits_per_sample ) - 1;
+        float max_value      = ( float )( ( 1 << bits_per_sample ) - 1 );
         float high_threshold = max_value / 1.1f;
         float low_threshold  = high_threshold / 1.1f;
 
@@ -2918,7 +2918,7 @@ bool ImageConverter::process_stack(
 
     OIIO::ImageBuf stacked_image = stacker.stacked_image();
     OIIO::ImageBuf scaled_image =
-        OIIO::ImageBufAlgo::mul( stacked_image, 1.0 / reference_scale );
+        OIIO::ImageBufAlgo::mul( stacked_image, 1.0f / reference_scale );
     OIIO::ImageBuf demosaiced_image =
         OIIO::ImageBufAlgo::demosaic( scaled_image );
 
