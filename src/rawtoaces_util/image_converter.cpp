@@ -2823,6 +2823,7 @@ bool ImageConverter::process_stack(
     const std::vector<std::string> &input_filenames )
 {
 #if OIIO_VERSION < OIIO_MAKE_VERSION( 3, 0, 0 )
+    (void)input_filenames;
     return false;
 #else
     ExposureStacking stacker;
