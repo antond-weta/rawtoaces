@@ -17,9 +17,8 @@ public:
         float                 black_level    = 0.0f,
         float                 low_threshold  = 0.8f,
         float                 high_threshold = 0.9f,
-        float                 scale          = 1.0f,
-        int                   nthreads       = 0 );
-    bool finalise( int nthreads = 0 );
+        float                 scale          = 1.0f );
+    bool finalise();
 
     const OIIO::ImageBuf &stacked_image();
     const OIIO::ImageBuf &clipping_map();

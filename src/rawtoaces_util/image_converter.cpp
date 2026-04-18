@@ -2651,10 +2651,10 @@ bool preprocess_image(
 }
 
 bool configure_and_load_image(
-    const std::string     &input_filename,
-    OpenImageIO::ImageBuf &buffer,
-    ImageConverter        &converter,
-    UsageTimer            &usage_timer )
+    const std::string &input_filename,
+    OIIO::ImageBuf    &buffer,
+    ImageConverter    &converter,
+    UsageTimer        &usage_timer )
 {
     const ImageConverter::Settings &settings = converter.settings;
 
@@ -2690,11 +2690,11 @@ bool configure_and_load_image(
 }
 
 bool postprocess_image(
-    const std::string     &input_filename,
-    const std::string     &output_filename,
-    OpenImageIO::ImageBuf &buffer,
-    ImageConverter        &converter,
-    UsageTimer            &usage_timer )
+    const std::string &input_filename,
+    const std::string &output_filename,
+    OIIO::ImageBuf    &buffer,
+    ImageConverter    &converter,
+    UsageTimer        &usage_timer )
 {
     const ImageConverter::Settings &settings = converter.settings;
 
