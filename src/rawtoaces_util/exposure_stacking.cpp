@@ -49,10 +49,9 @@ bool ExposureStacking::process(
 
         for ( int y = roi.ybegin; y < roi.yend; y++ )
         {
-            auto accum_iterator =
-                _accumulator.begin() +
-                ( y - roi_full.ybegin ) * roi_full.width() +
-                ( roi.xbegin - roi_full.xbegin );
+            auto accum_iterator = _accumulator.begin() +
+                                  ( y - roi_full.ybegin ) * roi_full.width() +
+                                  ( roi.xbegin - roi_full.xbegin );
 
             for ( int x = roi.xbegin; x < roi.xend; x++ )
             {
@@ -98,8 +97,7 @@ bool ExposureStacking::process(
                         // threshold. Also scale to account for exposure.
                         float weight = ( value - low_threshold ) /
                                        ( high_threshold - low_threshold );
-                        accum.value +=
-                            ( value - black_level ) * scale * weight;
+                        accum.value += ( value - black_level ) * scale * weight;
                         accum.weight += weight;
                         accum.clipping += weight;
                         accum.count++;
@@ -128,44 +126,40 @@ bool ExposureStacking::process(
 bool ExposureStacking::finalise()
 {
     OIIO::ROI roi_full = _stacked_image.roi();
-    OIIO::ImageBufAlgo::parallel_image(
-        roi_full, 0, [&]( OIIO::ROI roi ) {
-            OIIO::ImageBuf::Iterator<float> image_iterator(
-                _stacked_image, roi );
-            OIIO::ImageBuf::Iterator<float> clipping_iterator(
-                _clipping_map, roi );
+    OIIO::ImageBufAlgo::parallel_image( roi_full, 0, [&]( OIIO::ROI roi ) {
+        OIIO::ImageBuf::Iterator<float> image_iterator( _stacked_image, roi );
+        OIIO::ImageBuf::Iterator<float> clipping_iterator( _clipping_map, roi );
 
-            for ( int y = roi.ybegin; y < roi.yend; y++ )
+        for ( int y = roi.ybegin; y < roi.yend; y++ )
+        {
+            auto accum_iterator = _accumulator.begin() +
+                                  ( y - roi_full.ybegin ) * roi_full.width() +
+                                  ( roi.xbegin - roi_full.xbegin );
+
+            for ( int x = roi.xbegin; x < roi.xend; x++ )
             {
-                auto accum_iterator =
-                    _accumulator.begin() +
-                    ( y - roi_full.ybegin ) * roi_full.width() +
-                    ( roi.xbegin - roi_full.xbegin );
+                auto &accum = *accum_iterator;
 
-                for ( int x = roi.xbegin; x < roi.xend; x++ )
+                if ( accum.count == 0 )
                 {
-                    auto &accum = *accum_iterator;
-
-                    if ( accum.count == 0 )
-                    {
-                        // An empty pixel with no samples.
-                        // This should never happen.
-                        // Set to zero and mark as saturated?
-                        accum.count    = 1;
-                        accum.weight   = 1.0;
-                        accum.clipping = 1.0;
-                    }
-
-                    float value = ( accum.value / accum.weight ) / white_level;
-                    image_iterator[0]    = value;
-                    clipping_iterator[0] = accum.clipping / accum.count;
-
-                    image_iterator++;
-                    clipping_iterator++;
-                    accum_iterator++;
+                    // An empty pixel with no samples.
+                    // This should never happen.
+                    // Set to zero and mark as saturated?
+                    accum.count    = 1;
+                    accum.weight   = 1.0;
+                    accum.clipping = 1.0;
                 }
+
+                float value = ( accum.value / accum.weight ) / white_level;
+                image_iterator[0]    = value;
+                clipping_iterator[0] = accum.clipping / accum.count;
+
+                image_iterator++;
+                clipping_iterator++;
+                accum_iterator++;
             }
-        } );
+        }
+    } );
 
     return true;
 }
