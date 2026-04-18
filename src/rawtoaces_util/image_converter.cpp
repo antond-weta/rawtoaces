@@ -2822,6 +2822,9 @@ struct Exposure
 bool ImageConverter::process_stack(
     const std::vector<std::string> &input_filenames )
 {
+#if OIIO_VERSION < OIIO_MAKE_VERSION( 3, 0, 0 )
+    return false;
+#else
     ExposureStacking stacker;
 
     size_t reference_index = input_filenames.size() / 2;
@@ -2930,6 +2933,7 @@ bool ImageConverter::process_stack(
 
     status = Status::Success;
     return true;
+#endif
 }
 
 const std::vector<double> &ImageConverter::get_WB_multipliers() const
