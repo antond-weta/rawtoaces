@@ -13,6 +13,7 @@
 
 #include "colour_transforms.h"
 #include "exiftool.h"
+#include "exposure_stacking.h"
 
 #include <set>
 #include <filesystem>
@@ -2313,14 +2314,14 @@ bool ImageConverter::configure(
 bool ImageConverter::load_image(
     const std::string          &path,
     const OIIO::ParamValueList &hints,
-    OIIO::ImageBuf             &buffer )
+    OIIO::ImageBuf             &buffer,
+    OIIO::TypeDesc              type )
 {
     OIIO::ImageSpec image_spec;
     image_spec.extra_attribs = hints;
     buffer = OIIO::ImageBuf( path, 0, 0, nullptr, &image_spec, nullptr );
 
-    bool result =
-        buffer.read( 0, 0, 0, buffer.nchannels(), true, OIIO::TypeDesc::FLOAT );
+    bool result = buffer.read( 0, 0, 0, buffer.nchannels(), true, type );
     if ( !result )
     {
         status             = Status::ReadError;
@@ -2612,12 +2613,15 @@ bool ImageConverter::save_image(
     return true;
 }
 
-bool ImageConverter::process_image( const std::string &input_filename )
+bool preprocess_image(
+    const std::string      &input_filename,
+    ImageConverter::Status &status,
+    std::string            &last_error_message )
 {
     // Early validation: check if input file exists and is valid
     if ( input_filename.empty() )
     {
-        status             = Status::EmptyInputFilename;
+        status             = ImageConverter::Status::EmptyInputFilename;
         last_error_message = "Empty input filename provided.";
         return false;
     }
@@ -2628,7 +2632,7 @@ bool ImageConverter::process_image( const std::string &input_filename )
     {
         if ( !std::filesystem::exists( input_filename ) )
         {
-            status = Status::InputFileNotFound;
+            status = ImageConverter::Status::InputFileNotFound;
             last_error_message =
                 "Input file does not exist: '" + input_filename + "'.";
             return false;
@@ -2636,21 +2640,23 @@ bool ImageConverter::process_image( const std::string &input_filename )
     }
     catch ( const std::filesystem::filesystem_error &e )
     {
-        status = Status::FilesystemError;
+        status = ImageConverter::Status::FilesystemError;
         last_error_message =
             std::string( "Filesystem error while checking input file '" ) +
             input_filename + "': " + e.what();
         return false;
     }
 
-    std::string output_filename = input_filename;
-    if ( !make_output_path( output_filename ) )
-    {
-        return false;
-    }
+    return true;
+}
 
-    util::UsageTimer usage_timer;
-    usage_timer.enabled = settings.use_timing;
+bool configure_and_load_image(
+    const std::string     &input_filename,
+    OpenImageIO::ImageBuf &buffer,
+    ImageConverter        &converter,
+    UsageTimer            &usage_timer )
+{
+    const ImageConverter::Settings &settings = converter.settings;
 
     // ___ Configure transform ___
     if ( settings.verbosity > 0 )
@@ -2660,7 +2666,7 @@ bool ImageConverter::process_image( const std::string &input_filename )
     }
     usage_timer.reset();
     OIIO::ParamValueList hints;
-    if ( !configure( input_filename, hints ) )
+    if ( !converter.configure( input_filename, hints ) )
     {
         return false;
     }
@@ -2672,13 +2678,25 @@ bool ImageConverter::process_image( const std::string &input_filename )
         std::cerr << "Loading image: '" << input_filename << "'." << std::endl;
     }
     usage_timer.reset();
-    OIIO::ImageBuf buffer;
-    if ( !load_image( input_filename, hints, buffer ) )
+    //    OIIO::ImageBuf buffer;
+    if ( !converter.load_image( input_filename, hints, buffer ) )
     {
         return false;
     }
     fix_metadata( buffer.specmod() );
     usage_timer.print( input_filename, "reading image" );
+
+    return true;
+}
+
+bool postprocess_image(
+    const std::string     &input_filename,
+    const std::string     &output_filename,
+    OpenImageIO::ImageBuf &buffer,
+    ImageConverter        &converter,
+    UsageTimer            &usage_timer )
+{
+    const ImageConverter::Settings &settings = converter.settings;
 
     if ( settings.lens_correction_types !=
          ImageConverter::Settings::LensCorrectionType::None )
@@ -2690,15 +2708,15 @@ bool ImageConverter::process_image( const std::string &input_filename )
         usage_timer.print( input_filename, "fetching missing metadata" );
 
         usage_timer.reset();
-        if ( !apply_lens_correction( buffer, buffer ) )
+        if ( !converter.apply_lens_correction( buffer, buffer ) )
         {
             std::string message =
                 "Failed to apply lens correction to the file: " +
-                input_filename + ". " + last_error_message + " " +
+                input_filename + ". " + converter.last_error_message + " " +
                 fetch_error_message;
             if ( settings.require_lens_correction )
             {
-                last_error_message = message;
+                converter.last_error_message = message;
                 return false;
             }
             else
@@ -2715,7 +2733,7 @@ bool ImageConverter::process_image( const std::string &input_filename )
         std::cerr << "Applying transform matrix" << std::endl;
     }
     usage_timer.reset();
-    if ( !apply_matrix( buffer, buffer ) )
+    if ( !converter.apply_matrix( buffer, buffer ) )
     {
         return false;
     }
@@ -2727,7 +2745,7 @@ bool ImageConverter::process_image( const std::string &input_filename )
         std::cerr << "Applying scale" << std::endl;
     }
     usage_timer.reset();
-    if ( !apply_scale( buffer, buffer ) )
+    if ( !converter.apply_scale( buffer, buffer ) )
     {
         return false;
     }
@@ -2739,7 +2757,7 @@ bool ImageConverter::process_image( const std::string &input_filename )
         std::cerr << "Applying crop" << std::endl;
     }
     usage_timer.reset();
-    if ( !apply_crop( buffer, buffer ) )
+    if ( !converter.apply_crop( buffer, buffer ) )
     {
         return false;
     }
@@ -2751,11 +2769,164 @@ bool ImageConverter::process_image( const std::string &input_filename )
         std::cerr << "Saving output: '" << output_filename << "'." << std::endl;
     }
     usage_timer.reset();
-    if ( !save_image( output_filename, buffer ) )
+    if ( !converter.save_image( output_filename, buffer ) )
     {
         return false;
     }
     usage_timer.print( input_filename, "writing image" );
+
+    return true;
+}
+
+bool ImageConverter::process_image( const std::string &input_filename )
+{
+    if ( !preprocess_image( input_filename, status, last_error_message ) )
+    {
+        return false;
+    }
+
+    std::string output_filename = input_filename;
+    if ( !make_output_path( output_filename ) )
+    {
+        return false;
+    }
+
+    util::UsageTimer usage_timer;
+    usage_timer.enabled = settings.use_timing;
+
+    OIIO::ImageBuf buffer;
+    if ( !configure_and_load_image(
+             input_filename, buffer, *this, usage_timer ) )
+    {
+        return false;
+    }
+
+    if ( !postprocess_image(
+             input_filename, output_filename, buffer, *this, usage_timer ) )
+    {
+        return false;
+    }
+
+    status = Status::Success;
+    return true;
+}
+
+struct Exposure
+{
+    float black_level;
+    float lower_threshold;
+    float higher_threshold;
+    float scale;
+};
+
+bool ImageConverter::process_stack(
+    const std::vector<std::string> &input_filenames )
+{
+    ExposureStacking stacker;
+
+    size_t reference_index = input_filenames.size() / 2;
+
+    util::UsageTimer usage_timer;
+    usage_timer.enabled = settings.use_timing;
+
+    std::string reference_filename = input_filenames[reference_index];
+    std::string output_filename    = reference_filename;
+    if ( !make_output_path( output_filename ) )
+    {
+        return false;
+    }
+
+    float reference_scale = 1.0;
+
+    for ( size_t index = 0; index < input_filenames.size(); index++ )
+    {
+        const std::string &input_filename = input_filenames[index];
+
+        if ( !preprocess_image( input_filename, status, last_error_message ) )
+        {
+            return false;
+        }
+
+        OIIO::ParamValueList hints;
+        hints["raw:Demosaic"] = "none";
+
+        OIIO::ImageBuf buffer;
+        load_image( input_filename, hints, buffer, OIIO::TypeDesc::UINT16 );
+
+        const auto &spec = buffer.spec();
+
+        for ( auto &i: spec.extra_attribs )
+        {
+            std::cerr << i.name() << std::endl;
+        }
+
+        float iso          = spec.get_float_attribute( "Exif:ISOSpeedRatings" );
+        float shutter_time = spec.get_float_attribute( "ExposureTime" );
+        float aperture     = spec.get_float_attribute( "FNumber" );
+        float black_level  = spec.get_float_attribute( "raw:BlackLevel" );
+        int   bits_per_sample = spec.get_int_attribute( "raw:BitsPerSample" );
+
+        float max_value      = ( 1 << bits_per_sample ) - 1;
+        float high_threshold = max_value / 1.1f;
+        float low_threshold  = high_threshold / 1.1f;
+
+        if ( iso == 0 )
+        {
+            std::cerr << "ISO not found in the metadata." << std::endl;
+            iso = 1;
+        }
+
+        if ( shutter_time == 0 )
+        {
+            std::cerr << "Shutter time not found in the metadata." << std::endl;
+            shutter_time = 1;
+        }
+
+        if ( aperture == 0 )
+        {
+            std::cerr << "Aperture not found in the metadata." << std::endl;
+            aperture = 1;
+        }
+
+        float exposure_scale = aperture * aperture / iso / shutter_time;
+
+        bool is_reference = index == reference_index;
+        stacker.precheck( buffer.spec(), 0.0, false );
+        stacker.process(
+            buffer,
+            black_level,
+            low_threshold,
+            high_threshold,
+            exposure_scale );
+
+        if ( is_reference )
+        {
+            OIIO::ParamValueList options;
+            if ( !configure( buffer.spec(), options ) )
+            {
+                return false;
+            }
+            reference_scale = exposure_scale;
+        }
+    }
+
+    stacker.finalise();
+
+    OIIO::ImageBuf stacked_image = stacker.stacked_image();
+    OIIO::ImageBuf scaled_image =
+        OIIO::ImageBufAlgo::mul( stacked_image, 1.0 / reference_scale );
+    OIIO::ImageBuf demosaiced_image =
+        OIIO::ImageBufAlgo::demosaic( scaled_image );
+
+    if ( !postprocess_image(
+             reference_filename,
+             output_filename,
+             demosaiced_image,
+             *this,
+             usage_timer ) )
+    {
+        return false;
+    }
 
     status = Status::Success;
     return true;

@@ -371,7 +371,8 @@ public:
     bool load_image(
         const std::string          &path,
         const OIIO::ParamValueList &hints,
-        OIIO::ImageBuf             &buffer );
+        OIIO::ImageBuf             &buffer,
+        OIIO::TypeDesc              type = OIIO::TypeDesc::FLOAT );
 
     /// Apply the lens correction to the image buffer.
     /// @param dst
@@ -448,6 +449,8 @@ public:
     /// @result
     ///    `true` if processed successfully.
     bool process_image( const std::string &input_filename );
+
+    bool process_stack( const std::vector<std::string> &input_filenames );
 
     /// Get the solved white balance multipliers of the currently processed
     /// image. The multipliers become available after calling either of the
