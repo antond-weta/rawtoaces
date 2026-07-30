@@ -22,6 +22,7 @@ on:
   #      - 'build_scripts/build_versioned_docs.py'
   # Allow manual trigger
   workflow_dispatch:
+  pull_request:
 
 permissions:
   contents: read
