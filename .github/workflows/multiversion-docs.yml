@@ -30,7 +30,7 @@ permissions:
 
 # Allow only one concurrent deployment
 concurrency:
-  group: "pages"
+  group: "multiversion-pages"
   cancel-in-progress: true
 
 jobs:
