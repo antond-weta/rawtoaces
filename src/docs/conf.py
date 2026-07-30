@@ -68,6 +68,13 @@ html_theme_options = {
     'titles_only': False,
 }
 
+html_sidebars = {
+    '**': [
+        'versioning.html',
+        'searchbox.html',
+    ]
+}
+
 # -- Breathe configuration ---------------------------------------------------
 # https://breathe.readthedocs.io/en/latest/
 
