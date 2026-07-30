@@ -60,7 +60,7 @@ jobs:
 
       - name: Build versioned documentation site
         run: |
-          sphinx-multiversion src/docs docs/build/html
+          sphinx-multiversion src/docs site
 
       - name: Upload artifact for GitHub Pages
         if: github.event_name == 'push'
@@ -75,7 +75,6 @@ jobs:
           path: site
           name: rawtoaces-documentation
           retention-days: 5
-    
 
 #  deploy-docs:
 #    if: github.event_name == 'push'
