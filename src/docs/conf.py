@@ -25,6 +25,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
+    'sphinx_multiversion',
     'sphinx_rtd_theme',
     'myst_parser',
     'sphinx_tabs.tabs'
@@ -41,6 +42,14 @@ source_suffix = {
 
 # The master toctree document.
 master_doc = 'index'
+
+# Define which branches/tags to build
+smv_tag_whitelist = r'^v\d+\.\d+\.\d+$'  # matches v1.0.0, v2.1.3, etc.
+smv_branch_whitelist = r'^(main|master|develop)$'  # include specific branches
+smv_remote_whitelist = r'^origin$'  # only use origin remote
+
+# Don't build tags/branches older than this (optional)
+smv_released_pattern = r'^refs/tags/v.*$'  # only released versions
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
@@ -59,6 +68,13 @@ html_theme_options = {
     'titles_only': False,
 }
 
+html_sidebars = {
+    '**': [
+        'versioning.html',
+        'searchbox.html',
+    ]
+}
+
 # -- Breathe configuration ---------------------------------------------------
 # https://breathe.readthedocs.io/en/latest/
 
@@ -74,7 +90,8 @@ if read_the_docs_build:
     breathe_projects = {'rawtoaces': '../doxygen/xml'}
 else:
     # Local build - assume CMake has run Doxygen
-    breathe_projects = {'rawtoaces': '_build/doxygen/xml'}
+    subprocess.call('cd .. && doxygen docs/Doxyfile', shell=True)
+    breathe_projects = {'rawtoaces': '../doxygen/xml'}
 
 breathe_default_project = 'rawtoaces'
 breathe_default_members = ('members', 'undoc-members')

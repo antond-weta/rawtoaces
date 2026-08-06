@@ -1,0 +1,91 @@
+# Documentation build and deployment workflow
+# Builds documentation for the default branch and release tags.
+# Deploys a combined versioned site to GitHub Pages.
+
+name: Multiversion documentation
+
+on:
+  push:
+    branches: [ "main" ]
+    tags:
+      - 'v*'
+    paths:
+      - 'src/docs/**'
+      - 'include/**'
+      - '.github/workflows/docs.yml'
+      - 'build_scripts/build_versioned_docs.py'
+  pull_request:
+    paths:
+      - 'src/docs/**'
+      - 'include/**'
+      - '.github/workflows/multiversion-docs.yml'
+      - 'build_scripts/build_versioned_docs.py'
+  # Allow manual trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment
+concurrency:
+  group: "multiversion-pages"
+  cancel-in-progress: true
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+
+      - name: Install Doxygen
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y doxygen
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r src/docs/requirements.txt
+
+      - name: Build versioned documentation site
+        run: |
+          sphinx-multiversion src/docs site
+
+      - name: Upload artifact for GitHub Pages
+        if: github.event_name == 'push'
+        uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
+        with:
+          path: site
+
+      - name: Upload artifact for manual builds
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7
+        with:
+          path: site
+          name: rawtoaces-documentation
+          retention-days: 5
+
+#  deploy-docs:
+#    if: github.event_name == 'push'
+#    needs: build-docs
+#    runs-on: ubuntu-latest
+#    
+#    environment:
+#      name: github-pages
+#      url: ${{ steps.deployment.outputs.page_url }}
+#
+#    steps:
+#      - name: Deploy to GitHub Pages
+#        id: deployment
+#        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4.0.5
