@@ -75,6 +75,8 @@ def build_docs(worktree: Path, output_dir: Path, release_name: str | None) -> No
         "-D",
         "breathe_projects.rawtoaces=../doxygen/xml",
     ]
+    
+    env['PYTHONPATH'] = './api/python'
 
     if release_name is not None:
         sphinx_command.extend(["-D", f"version={release_name}", "-D", f"release={release_name}"])

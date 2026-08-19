@@ -25,9 +25,11 @@ if(DOXYGEN_FOUND AND SPHINX_EXECUTABLE)
         VERBATIM
     )
 
+    set(SPHINX_PYTHONPATH ${CMAKE_CURRENT_SOURCE_DIR}/api/python)
+
     # Sphinx target - generates HTML documentation
     add_custom_target(sphinx
-        COMMAND ${SPHINX_EXECUTABLE}
+	${CMAKE_COMMAND} -E env "PYTHONPATH=${SPHINX_PYTHONPATH}" ${SPHINX_EXECUTABLE}
             -b html
             -c ${CMAKE_CURRENT_SOURCE_DIR}
             -D breathe_projects.rawtoaces=${CMAKE_BINARY_DIR}/src/docs/doxygen/xml

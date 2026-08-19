@@ -61,6 +61,8 @@ jobs:
       - name: Build versioned documentation site
         run: |
           python build_scripts/build_versioned_docs.py --repo-root . --output-dir site
+        env:
+          PYTHONPATH: ./api/python
 
       - name: Upload artifact for GitHub Pages
         if: github.event_name == 'push'
