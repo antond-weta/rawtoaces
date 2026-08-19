@@ -23,11 +23,14 @@ release = '2.0.0'
 extensions = [
     'breathe',
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+    'sphinx.ext.napoleon',
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
     'sphinx_rtd_theme',
     'myst_parser',
-    'sphinx_tabs.tabs'
+    'sphinx_tabs.tabs',
+    'enum_tools.autoenum'
 ]
 
 templates_path = ['_templates']
