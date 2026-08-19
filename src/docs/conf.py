@@ -28,6 +28,7 @@ extensions = [
     'sphinx.ext.intersphinx',
     'sphinx.ext.viewcode',
     'sphinx_rtd_theme',
+    'sphinx_multiversion',
     'myst_parser',
     'sphinx_tabs.tabs',
     'enum_tools.autoenum'
