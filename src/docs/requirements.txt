@@ -9,3 +9,4 @@ sphinx_tabs>=3.0
 sphinx-multiversion
 sphinx_toolbox
 enum_tools
+autodoc
