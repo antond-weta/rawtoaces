@@ -47,6 +47,12 @@ source_suffix = {
 # The master toctree document.
 master_doc = 'index'
 
+# Autodoc needs to import the rawtoaces module to read the docstrings.
+# Adding the path to the module stub to the search path.
+import sys
+from pathlib import Path
+sys.path.insert(0, str(Path('.', 'api', 'python').resolve()))
+
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 

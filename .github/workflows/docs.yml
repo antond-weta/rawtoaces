@@ -51,7 +51,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
-          python-version: '3.11'
+          python-version: '3.14'
 
       - name: Install Python dependencies
         run: |
@@ -61,8 +61,6 @@ jobs:
       - name: Build versioned documentation site
         run: |
           python build_scripts/build_versioned_docs.py --repo-root . --output-dir site
-        env:
-          PYTHONPATH: ./api/python
 
       - name: Upload artifact for GitHub Pages
         if: github.event_name == 'push'
