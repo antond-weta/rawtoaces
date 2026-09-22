@@ -2622,14 +2622,13 @@ bool ImageConverter::save_image(
 
     bool is_compliant = true;
 
-    if (data_type != OIIO::TypeDesc::HALF)
+    if ( data_type != OIIO::TypeDesc::HALF )
     {
         is_compliant = false;
 
         std::cerr << "Warning: The ST2065-4 standard requires the pixel values "
                   << "to be 16-bit floating point. The output file is not "
-                  << "AcesContainer-compliant."
-                  << std::endl;
+                  << "AcesContainer-compliant." << std::endl;
     }
 
     const auto &compression = settings.compression;
@@ -2647,7 +2646,7 @@ bool ImageConverter::save_image(
                   << std::endl;
     }
 
-    image_spec["acesImageContainerFlag"] = is_compliant? 1 : 0;
+    image_spec["acesImageContainerFlag"] = is_compliant ? 1 : 0;
 
     auto image_output = OIIO::ImageOutput::create( "exr" );
     bool result       = image_output->open( output_filename, image_spec );
