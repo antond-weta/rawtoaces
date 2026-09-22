@@ -104,6 +104,10 @@ add_subdirectory("src/${RAWTOACES_CORE_LIB}")
 add_subdirectory("src/${RAWTOACES_UTIL_LIB}")
 add_subdirectory("src/rawtoaces")
 
+if ( OpenImageIO_VERSION_MAJOR GREATER_EQUAL 3)
+    add_subdirectory("src/rawtoaces_stack")
+endif ()
+
 if ( RTA_BUILD_PYTHON_BINDINGS )
     add_subdirectory(src/bindings)
 endif ( RTA_BUILD_PYTHON_BINDINGS )

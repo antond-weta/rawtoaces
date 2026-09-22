@@ -21,6 +21,8 @@ add_library ( ${RAWTOACES_UTIL_LIB} ${DO_SHARED}
     colour_transforms.h
     exiftool.cpp
     exiftool.h
+    exposure_stacking.cpp
+    exposure_stacking.h
     rawtoaces_util_priv.h
     
     $<$<BOOL:${RTA_ENABLE_LENSFUN}>:

@@ -383,10 +383,13 @@ public:
     /// Load an image from a given `path` into a `buffer` using the `hints`
     /// calculated by the `configure` method. The hints can be manually
     /// modified prior to invoking this method.
+    /// @param path
+    ///    raw image file name to load from
     bool load_image(
         const std::string          &path,
         const OIIO::ParamValueList &hints,
-        OIIO::ImageBuf             &buffer );
+        OIIO::ImageBuf             &buffer,
+        OIIO::TypeDesc              data_type = OIIO::TypeDesc::FLOAT );
 
     /// Apply the lens correction to the image buffer.
     /// @param dst
@@ -448,12 +451,14 @@ public:
     /// Saves the image into ACES Container.
     /// @param output_filename
     ///     Full path to the file to be saved.
-    /// @param buf
+    /// @param buffer
     ///     Image buffer to be saved.
     /// @return
     ///    `true` if saved successfully.
-    bool
-    save_image( const std::string &output_filename, const OIIO::ImageBuf &buf );
+    bool save_image(
+        const std::string    &output_filename,
+        const OIIO::ImageBuf &buffer,
+        OIIO::TypeDesc        data_type = OIIO::TypeDesc::HALF );
 
     /// A convenience single-call method to process an image. Equivalent to
     /// `make_output_path`, `configure`, `load_image`, optional lens correction,
@@ -463,6 +468,8 @@ public:
     /// @return
     ///    `true` if processed successfully.
     bool process_image( const std::string &input_filename );
+
+    bool process_stack( const std::vector<std::string> &input_filenames );
 
     /// Get the solved white balance multipliers of the currently processed
     /// image. The multipliers become available after calling either of the
