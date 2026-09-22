@@ -2759,8 +2759,6 @@ bool process_buffer(
     if ( settings.lens_correction_types !=
          ImageConverter::Settings::LensCorrectionType::None )
     {
-        const std::string &input_filename = buffer.name();
-
         usage_timer.reset();
         std::string fetch_error_message;
         fetch_missing_metadata(
