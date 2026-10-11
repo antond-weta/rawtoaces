@@ -9,7 +9,8 @@ brew install \
     openimageio \
     nanobind \
     robin-map \
-    exiftool
+    exiftool \
+    pytest
 
 if [ "$RTA_ENABLE_EIGEN" != "OFF" ];
 then
@@ -25,6 +26,3 @@ if [ "$RTA_ENABLE_LENSFUN" != "OFF" ];
 then
     brew install lensfun
 fi
-
-
-python3 -m pip install --break-system-packages pytest
