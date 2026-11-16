@@ -31,8 +31,6 @@ endforeach()
 include(CMakeFindDependencyMacro)
 
 if ( NOT @ENABLE_SHARED@ )
-    find_dependency ( nlohmann_json )
-
     if ( @RTA_ENABLE_EIGEN@ )
         find_dependency ( Eigen3 )
     endif ()

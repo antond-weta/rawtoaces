@@ -87,7 +87,7 @@ The install layout under the configured prefix is:
 
 Library and executable locations can be changed with ``INSTALL_LIB_DIR`` and ``INSTALL_BIN_DIR``. The Python extension installs into the configured library directory, rather than automatically into Python's site-packages.
 
-``find_package(RAWTOACES REQUIRED)`` loads both libraries. OpenImageIO is a dependency of ``rawtoaces_util`` only. A static build also finds ``nlohmann_json``, plus Eigen3 or Ceres when those options were enabled for that build. Select one library with its component name:
+``find_package(RAWTOACES REQUIRED)`` loads both libraries. OpenImageIO is a dependency of ``rawtoaces_util`` only. A static build also finds Eigen3 or Ceres when those options were enabled for that build. ``nlohmann_json`` is used only while building ``rawtoaces_core`` and is not a dependency of the installed package. Select one library with its component name:
 
 .. code-block:: cmake
 

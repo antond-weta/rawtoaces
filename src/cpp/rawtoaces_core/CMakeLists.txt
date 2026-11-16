@@ -29,10 +29,13 @@ add_library( ${RAWTOACES_CORE_LIB} ${DO_SHARED}
     ../misc/helpers.h
 )
 
-target_link_libraries(
-    ${RAWTOACES_CORE_LIB}
-    PRIVATE
-        nlohmann_json::nlohmann_json
+# Header-only, and not included by any public header. Linking the imported
+# target would put it in the static export and force consumers to find it.
+target_include_directories( ${RAWTOACES_CORE_LIB} PRIVATE
+    $<TARGET_PROPERTY:nlohmann_json::nlohmann_json,INTERFACE_INCLUDE_DIRECTORIES>
+)
+target_compile_definitions( ${RAWTOACES_CORE_LIB} PRIVATE
+    $<TARGET_PROPERTY:nlohmann_json::nlohmann_json,INTERFACE_COMPILE_DEFINITIONS>
 )
 
 if ( RTA_ENABLE_EIGEN )
