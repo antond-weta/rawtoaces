@@ -71,10 +71,16 @@ set_target_properties( ${RAWTOACES_CORE_LIB} PROPERTIES
 
 install( TARGETS ${RAWTOACES_CORE_LIB}
     EXPORT RAWTOACESCoreTargets
+    ARCHIVE DESTINATION ${INSTALL_LIB_DIR}
+        COMPONENT rawtoaces_core
     LIBRARY DESTINATION ${INSTALL_LIB_DIR}
-    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
+        COMPONENT rawtoaces_core
+        NAMELINK_COMPONENT rawtoaces_core
+    RUNTIME DESTINATION ${INSTALL_BIN_DIR}
+        COMPONENT rawtoaces_core
     PUBLIC_HEADER DESTINATION include/rawtoaces
-    COMPONENT rawtoaces_core
+        COMPONENT rawtoaces_core
+    INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
 # generate and install export file
